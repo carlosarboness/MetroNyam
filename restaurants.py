@@ -1,36 +1,41 @@
-from typing import Optional, List, Tuple
 
+import pandas as pd
+from staticmap import StaticMap, CircleMarker
+from typing import Optional, List, Tuple
 
 class Restaurant:
 
-    _id: int
-    _name: str
-    _adress: Tuple[str, int]
-    _neighbourhood: str
-    _district: str
-    _zip_code: int
-    _tel: int
+    _id: int #resigter_id
+    _name: str #name
+    _adress: Tuple[str, int] #[adress_road_name, adresses_strat_street_number]
+    _neighborhood: str #adresses_neighborhood_name
+    _district: str  #adresses_district_name
+    _zip_code: int  #adresses_zip_code
+    _tel: int   #values_value
 
-    def __init__(self, id: int, name: str, adress: Tuple[str, int], neighbourhood: str, district: str, zip_code: int, tel: int) -> None:
-        _id = id
-        _name = name
-        _adress = adress
-        _neighbourhood = neighbourhood
-        _district = district
-        _zip_code = zip_code
-        _tel = tel
+    def __init__(self, id: int, name: str, adress: Tuple[str, int], neighborhood: str, district: str, zip_code: int, tel: int) -> None:
 
+        self._id = id
+        self._name = name
+        self._adress = adress
+        self._neighborhood = neighborhood
+        self._district = district
+        self._zip_code = zip_code
+        self._tel = tel
 
 Restaurants = List[Restaurant]
 
-
 def read() -> Restaurants:
-    return
-
-
+    df = pd.read_csv('rest.csv')
+    Restaurants_list: List[Restaurant] = []
+    for index, row in df.iterrows():
+        r = Restaurant(row['register_id'], row['name'], (row['addresses_road_name'], row['addresses_start_street_number']), 
+                        row['addresses_neighborhood_name'], row['addresses_district_name'], row['addresses_zip_code'], row['values_value'])
+        Restaurants_list.append(r)
+    return Restaurants_list
+   
 def coincidence(query: str, res: Restaurant) -> bool:
     return query.lower() == (str(res._id) or res._adress[0].lower() or res._neighbourhood.lower() or res._district.lower() or str(res._zip_code))
-
 
 def find(query: str, restaurants: Restaurants) -> Restaurants:
     restaurants_query: Restaurants = []
@@ -38,3 +43,13 @@ def find(query: str, restaurants: Restaurants) -> Restaurants:
         if coincidence(query, restaurant):
             restaurants_query.append(restaurant)
     return restaurants_query
+
+def exec() -> None: 
+    restaurants = read()
+    for rest in restaurants: 
+        print(rest._name)
+    query = "Sants"
+    filter = find("query", restaurants)
+    print(len(filter))
+    
+exec()
