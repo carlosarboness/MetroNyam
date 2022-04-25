@@ -23,9 +23,22 @@ class Restaurant:
         self._zip_code = zip_code
         self._tel = tel
 
+    def get_name(self) -> str: 
+        return self._name 
+    
+    def get_adress(self) -> Tuple[str, int]: 
+        return self._adress
+    
+    def get_district(self) -> str: 
+        return self._district
+    
+    def get_tel(self) -> int: 
+        return self._tel
+        
 Restaurants = List[Restaurant]
 
 def read() -> Restaurants:
+    #http://www.bcn.cat/tercerlloc/files/restaurants/opendatabcn_restaurants_restaurants-csv.csv
     df = pd.read_csv('rest.csv')
     Restaurants_list: List[Restaurant] = []
     for index, row in df.iterrows():
@@ -47,9 +60,9 @@ def find(query: str, restaurants: Restaurants) -> Restaurants:
 def exec() -> None: 
     restaurants = read()
     for rest in restaurants: 
-        print(rest._name)
-    query = "Sants"
-    filter = find("query", restaurants)
+        print(rest._district)
+    query = "Eixample"
+    filter = find(query, restaurants)
     print(len(filter))
     
 exec()
