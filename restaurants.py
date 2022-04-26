@@ -21,7 +21,8 @@ class Restaurant:
         self._district = district
         self._zip_code = zip_code
         self._tel = tel
-
+        #Falta afegir que també llegeixi les coordenades
+        
     def get_name(self) -> str: 
         return self._name 
     
