@@ -48,6 +48,11 @@ def read() -> Restaurants:
     return Restaurants_list
    
 def coincidence(query: str, res: Restaurant) -> bool:
+    for word in res._name.split():
+    #if res._name is a string with more than one word, we use de function split to
+    #divide it into a list of strings (with only one word) to be able to compare it
+        if query.lower() == word.lower():
+            return True
     return query.lower() == (str(res._id) or res._adress[0].lower() or res._neighbourhood.lower() or res._district.lower() or str(res._zip_code))
 
 def find(query: str, restaurants: Restaurants) -> Restaurants:
