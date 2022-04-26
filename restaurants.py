@@ -4,15 +4,15 @@ from typing import Optional, List, Tuple
 
 class Restaurant:
 
-    _id: int #resigter_id
+    _id: str #resigter_id
     _name: str #name
-    _adress: Tuple[str, int] #[adress_road_name, adresses_strat_street_number]
+    _adress: Tuple[str, str] #[adress_road_name, adresses_strat_street_number]
     _neighborhood: str #adresses_neighborhood_name
     _district: str  #adresses_district_name
-    _zip_code: int  #adresses_zip_code
-    _tel: int   #values_value
+    _zip_code: str  #adresses_zip_code
+    _tel: str   #values_value
 
-    def __init__(self, id: int, name: str, adress: Tuple[str, int], neighborhood: str, district: str, zip_code: int, tel: int) -> None:
+    def __init__(self, id: str, name: str, adress: Tuple[str, str], neighborhood: str, district: str, zip_code: str, tel: str) -> None:
 
         self._id = id
         self._name = name
@@ -25,7 +25,7 @@ class Restaurant:
     def get_name(self) -> str: 
         return self._name 
     
-    def get_adress(self) -> Tuple[str, int]: 
+    def get_adress(self) -> Tuple[str, str]: 
         return self._adress
     
     def get_neighborhood(self) -> str:
@@ -34,7 +34,7 @@ class Restaurant:
     def get_district(self) -> str: 
         return self._district
     
-    def get_zip_code(self) -> int: 
+    def get_zip_code(self) -> str: 
         return self._zip_code
 
 
@@ -53,23 +53,19 @@ def read() -> Restaurants:
    
 def coincidence(query: str, res: Restaurant) -> bool:
     query = query.lower()
-    lst_query: list[str] = []
-    for w_query in query.split():
-        lst_query.append(w_query)
-    for w_query in lst_query:
-        in_name: bool = False
-        for w_name in res.get_name().split():
-        #if res._name is a string with more than one word, we use de function split to
-        #divide it into a list of strings (with only one word) to be able to compare it
-            if w_query == w_name.lower():
-                in_name = True
-        adress: str = res.get_adress()[0].lower()
-        neighborhood: str = res.get_neighborhood().lower()
-        district: str = res.get_district().lower()
-        zip_code: str = res.get_zip_code().lower()
-        if not in_name and w_query != adress and w_query != neighborhood and w_query != district and w_query != zip_code:
-            return False
-    return True
+    for word in res.get_name().split():
+    #if res._name is a string with more than one word, we use de function split to
+    #divide it into a list of strings (with only one word) to be able to compare it
+        if query == word.lower():
+            return True
+    adress: str = res.get_adress()[0].lower()
+    neighborhood: str = res.get_neighborhood().lower()
+    district: str = res.get_district().lower()
+    zip_code: str = res.get_zip_code().lower()
+    return query == adress or query == neighborhood or query == district or query == zip_code
+    #ERRORS A CORREGIR:
+    # - No funciona amb el zip_code 
+    # - adress, neighborhood, district... també poden tenir més d'una paraula (fer com la mateixa funció de word)
 
 def find(query: str, restaurants: Restaurants) -> Restaurants:
     restaurants_query: Restaurants = []
@@ -82,7 +78,8 @@ def exec() -> None:
     restaurants = read()
     for rest in restaurants: 
         print(rest._district)
-    query = "Sushi"
+    print()
+    query = "C Olzinelles"
     filter = find(query, restaurants)
     for rest in filter:
         print(rest._name, rest._neighborhood, rest._district)
