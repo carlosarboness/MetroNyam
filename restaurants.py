@@ -1,6 +1,10 @@
 import pandas as pd
 from staticmap import StaticMap, CircleMarker
 from typing import Optional, List, Tuple
+from fuzzysearch import find_near_matches
+
+
+location = Tuple[str, str]
 
 
 class Restaurant:
@@ -12,8 +16,9 @@ class Restaurant:
     _district: str  # adresses_district_name
     _zip_code: str  # adresses_zip_code
     _tel: str  # values_value
+    _coord: location  # [geo_epgs_4326_x, geo_epgs_4326_y]
 
-    def __init__(self, id: str, name: str, adress: Tuple[str, str], neighborhood: str, district: str, zip_code: str, tel: str) -> None:
+    def __init__(self, id: str, name: str, adress: Tuple[str, str], neighborhood: str, district: str, zip_code: str, tel: str, coord: location) -> None:
 
         self._id = id
         self._name = name
@@ -22,7 +27,10 @@ class Restaurant:
         self._district = district
         self._zip_code = zip_code
         self._tel = tel
-        # Falta afegir que també llegeixi les coordenades
+        self._coord = coord
+
+    def get_id(self) -> str:
+        return self._id
 
     def get_name(self) -> str:
         return self._name
@@ -39,6 +47,12 @@ class Restaurant:
     def get_zip_code(self) -> str:
         return self._zip_code
 
+    def get_tel(self) -> str:
+        return self._tel
+
+    def get_coord(self) -> location:
+        return self._coord
+
 
 Restaurants = List[Restaurant]
 
@@ -50,26 +64,39 @@ def read() -> Restaurants:
     Restaurants_list: List[Restaurant] = []
     for index, row in df.iterrows():
         r = Restaurant(row['register_id'], row['name'], (row['addresses_road_name'], row['addresses_start_street_number']),
-                        row['addresses_neighborhood_name'], row['addresses_district_name'], row['addresses_zip_code'], row['values_value'])
+                        row['addresses_neighborhood_name'], row['addresses_district_name'], row['addresses_zip_code'], row['values_value'],
+                        (row['geo_epgs_4326_x'], row['geo_epgs_4326_y']))
         Restaurants_list.append(r)
     return Restaurants_list
 
 
-def coincidence(query: str, res: Restaurant) -> bool:
-    query = query.lower()
-    for word in res.get_name().split():
-        # if res._name is a string with more than one word, we use de function split to
-        # divide it into a list of strings (with only one word) to be able to compare it
-        if query == word.lower():
+def split_compare_string(query: str, string: str) -> Optional[bool]:
+    # if res._name is a string with more than one word, we use de function split to
+    # divide it into a list of strings (with only one word) to be able to compare it
+    for word in string.split():
+        if query == word:
             return True
-    adress: str = res.get_adress()[0].lower()
-    neighborhood: str = res.get_neighborhood().lower()
-    district: str = res.get_district().lower()
-    zip_code: str = res.get_zip_code().lower()
-    return query == adress or query == neighborhood or query == district or query == zip_code
+    return None
+
+
+def lst_rest(rest: Restaurant) -> List[str]:
+    lst: List[str] = []
+    lst.append(rest.get_name().lower())
+    lst.append(rest.get_adress()[0].lower())
+    lst.append(rest.get_neighborhood().lower())
+    lst.append(rest.get_district().lower())
+    lst.append(rest.get_zip_code().lower())
+    return lst
+
+
+def coincidence(query: str, rest: Restaurant) -> bool:
+    lst: List[str] = lst_rest(rest)
+    for string in lst:
+        if split_compare_string(query.lower(), string):
+            return True
+    return False
     # ERRORS A CORREGIR:
-    # - No funciona amb el zip_code
-    # - adress, neighborhood, district... també poden tenir més d'una paraula (fer com la mateixa funció de word)
+    # - No funciona amb el zip_code(8013.0)
 
 
 def find(query: str, restaurants: Restaurants) -> Restaurants:
@@ -83,11 +110,11 @@ def find(query: str, restaurants: Restaurants) -> Restaurants:
 def exec() -> None:
     restaurants = read()
     for rest in restaurants:
-        print(rest._district)
+        print(rest._zip_code)
     print()
-    query = "C Olzinelles"
+    query = "8013.0"
     filter = find(query, restaurants)
     for rest in filter:
-        print(rest._name, rest._neighborhood, rest._district)
+        print(rest._name, rest._coord)
 
 exec()
