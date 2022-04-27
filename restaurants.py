@@ -118,4 +118,3 @@ def exec() -> None:
         print(rest._name, rest._coord)
 
 exec()
-print('hola tonto')
