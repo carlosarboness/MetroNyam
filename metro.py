@@ -7,18 +7,31 @@ def get_metro_graph() -> MetroGraph:
 
 MetroGraph = networkx.Graph
 
+class Point: 
+
+    _point: str
+    
+    def __init__(self, point: str) -> None:
+        self._point = point
+    
+    def getX(self, i: int) -> str: 
+        for word in self._point.split(): 
+
+        
+    def getY(self) -> str: 
+
+
 class Station: 
     _name: str
     _line: Tuple[str, int]
-    _start: str
-    _end: str
+    _servei: Tuple[str, str]
     _color: str
+    _coord: Tuple[str, str]
 
-    def __init__(self, name: str, line: Tuple[str, int], start: str, end: str, color: str) -> None:
+    def __init__(self, name: str, line: Tuple[str, int], servei: Tuple[str, str], color: str) -> None:
         self._name = name 
         self._line = line 
-        self._start = start 
-        self._end = end 
+        self._servei = servei
         self._color = color
 
 class Access: 
@@ -46,7 +59,7 @@ def read_stations() -> Stations:
     Stations_list: Stations = []
     for index, row in df.iterrows():
         s = Station(row['NOM_ESTACIO'], (row['NOM_LINIA'], row['ORDRE_ESTACIO']), 
-                        row['ORIGEN_SERVEI'], row['DESTI_SERVEI'], row['COLOR_LINIA'])
+                        (row['ORIGEN_SERVEI'], row['DESTI_SERVEI']), row['COLOR_LINIA'])
         Stations_list.append(s)
     return Stations_list
 
