@@ -70,8 +70,8 @@ def read_accesses() -> Accesses:
     Accesses_list: Accesses = []
     for index, row in df.iterrows():
         a = Access(row['NOM_ACCES'], row['NOM_ESTACIO'], row['NOM_TIPUS_ACCESSIBILITAT'], row['NUM_ASCENSORS'])
-        Accesses.append(a)
-    return Accesses
+        Accesses_list.append(a)
+    return Accesses_list
 
 def show(g: MetroGraph) -> None: ...
 def plot(g: MetroGraph, filename: str) -> None: ...
