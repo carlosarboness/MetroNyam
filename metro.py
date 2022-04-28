@@ -2,14 +2,15 @@
 import pandas as pd
 import networkx as nx
 from typing import Optional, List, Tuple
+import matplotlib.pyplot as plt
 
 MetroGraph = nx.Graph
 
 def get_metro_graph() -> MetroGraph:
-    metro =  MetroGraph 
+    metro =  MetroGraph() 
     lst_stations: Stations = read_stations()
     for stat in lst_stations: 
-        metro.add_node(stat, pos=stat._location)
+        metro.add_node(stat._name, pos=stat._location)
     return metro
 
 location = Tuple[float, float]
@@ -71,6 +72,7 @@ def point(geomety: str) -> location:
 
 def exec() -> None: 
     metro = get_metro_graph()
-    nx.draw(metro, nx.get_node_attributes('pos'), with_labels=True, node_size=100)
+    nx.draw(metro, nx.get_node_attributes(metro, 'pos'), with_labels=True, node_size=0)
+    plt.savefig("path.png")
 
 exec()
