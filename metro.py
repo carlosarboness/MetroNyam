@@ -7,28 +7,31 @@ def get_metro_graph() -> MetroGraph:
 
 MetroGraph = networkx.Graph
 
-class Location: 
+class Point: 
 
-    _location: str
+    _point: str
     
-    def __init__(self, location: str) -> None:
-        self._location = location
+    def __init__(self, point: str) -> None:
+        self._point = point
     
-    def get(self, i: int) -> str: 
+    def get(self, i: int) -> float: 
 
         assert i == 1 or i == 2
-        word: list[str] = self._location.split()
+        word: list[str] = self._point.split()
         if i == 1: 
-            return word[i].pop(0)
+            return float(word[i].pop(0))
         else: 
-            return word[i].pop(-1)
-        
-class Station: 
+            return float(word[i].pop(-1))
+
+location = Tuple[float, float]
+
+class Station:
     _name: str
     _line: Tuple[str, int]
     _servei: Tuple[str, str]
     _color: str
     _coord: Tuple[str, str]
+    _location: location
 
     def __init__(self, name: str, line: Tuple[str, int], servei: Tuple[str, str], color: str) -> None:
         self._name = name 
@@ -37,10 +40,11 @@ class Station:
         self._color = color
 
 class Access: 
-    _name: str 
-    _station_name: str 
-    _accesstypte: bool #true if accessible, false if not
-    _elevatrosnum: int 
+    _name: str
+    _station_name: str
+    _accesstypte: bool  # true if accessible, false if not
+    _elevatrosnum: int
+    _location: location
 
     def __init__(self, name: str, station_name: str, accesstype: str, elevatorsnum: int) -> None:
         self._name = name 
@@ -61,7 +65,8 @@ def read_stations() -> Stations:
     Stations_list: Stations = []
     for index, row in df.iterrows():
         s = Station(row['NOM_ESTACIO'], (row['NOM_LINIA'], row['ORDRE_ESTACIO']), 
-                        (row['ORIGEN_SERVEI'], row['DESTI_SERVEI']), row['COLOR_LINIA'])
+                        (row['ORIGEN_SERVEI'], row['DESTI_SERVEI']), row['COLOR_LINIA'],
+                        row['GEOMETRY'])
         Stations_list.append(s)
     return Stations_list
 
