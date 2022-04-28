@@ -14,13 +14,15 @@ class Point:
     def __init__(self, point: str) -> None:
         self._point = point
     
-    def getX(self, i: int) -> str: 
-        for word in self._point.split(): 
+    def get(self, i: int) -> str: 
 
+        assert i == 1 or i == 2
+        word: list[str] = self._point.split()
+        if i == 1: 
+            return word[i].pop(0)
+        else: 
+            return word[i].pop(-1)
         
-    def getY(self) -> str: 
-
-
 class Station: 
     _name: str
     _line: Tuple[str, int]
