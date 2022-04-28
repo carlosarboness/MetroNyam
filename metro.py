@@ -1,7 +1,16 @@
 
 import pandas as pd
-import networkx
+import networkx as nx
 from typing import Optional, List, Tuple
+
+MetroGraph = nx.Graph
+
+def get_metro_graph() -> MetroGraph:
+    metro =  MetroGraph 
+    lst_stations: Stations = read_stations()
+    for stat in lst_stations: 
+        metro.add_node(stat, pos=stat._location)
+    return metro
 
 location = Tuple[float, float]
 
@@ -61,15 +70,7 @@ def point(geomety: str) -> location:
     return (float(word[1].replace("(", "")), float(word[2].replace(")", "")))
 
 def exec() -> None: 
-    read = read_stations()
-    i = 0
-    for station in read: 
-        print(i, station._location)
-        i = i + 1
-    read1 = read_accesses()
-    j = 0
-    for ac in read1: 
-        print(j, ac._location)
-        j = j + 1
+    metro = get_metro_graph()
+    nx.draw(metro, nx.get_node_attributes('pos'), with_labels=True, node_size=100)
 
 exec()
