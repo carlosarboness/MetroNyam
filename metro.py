@@ -7,17 +7,17 @@ def get_metro_graph() -> MetroGraph:
 
 MetroGraph = networkx.Graph
 
-class Point: 
+class Location: 
 
-    _point: str
+    _location: str
     
-    def __init__(self, point: str) -> None:
-        self._point = point
+    def __init__(self, location: str) -> None:
+        self._location = location
     
     def get(self, i: int) -> str: 
 
         assert i == 1 or i == 2
-        word: list[str] = self._point.split()
+        word: list[str] = self._location.split()
         if i == 1: 
             return word[i].pop(0)
         else: 
