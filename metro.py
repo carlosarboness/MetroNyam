@@ -19,6 +19,7 @@ def get_att_station(stat) -> dict:
     return attributes
 
 def get_att_tram(stat, last_node) -> dict: 
+
     attributes = {
                 'weight': haversine(last_node._location, stat._location),
                 'line': stat._line[0],
@@ -27,24 +28,38 @@ def get_att_tram(stat, last_node) -> dict:
             }
     return attributes
 
-def add_nodes_and_edges_from_lines(metro: MetroGraph(), last_line: None, last_node, lst_stations) -> None: 
+def get_att_accesses(stat, access) -> dict: 
+    attributes = {
+                'weight': haversine(stat._location, access._location),
+                'pos': access._location,
+                'color': stat._color,
+                'accessibility': access._accesstype,
+                'type': 'Access'
+            }
+    return attributes
+
+def add_nodes_and_edges_from_lines(metro: MetroGraph(), last_line: None, last_node: None, lst_stations, lst_accesses) -> None: 
+    i = 0
     for stat in lst_stations: 
         att1 = get_att_station(stat)
         metro.add_node((stat._name + " " + stat._line[0]), **att1)
-
+        while stat._station_code == lst_accesses[i]._station_code: 
+            att2 = get_att_accesses(stat, lst_accesses[i])
+            metro.add_node(lst_accesses[i]._name, **att2)
+            #metro.add_edge((stat._name + " " + stat._line[0]), lst_accesses[i]._name)
+            i = i + 1
         if stat._line[0] != last_line: 
             last_line = stat._line[0]
         else: 
-            get_att_tram(stat, last_node)
-            att2 = get_att_tram(stat, last_node)
-            metro.add_edge(last_node._name + " " + last_node._line[0], (stat._name + " " + stat._line[0]), **att2)
+            att3 = get_att_tram(stat, last_node)
+            metro.add_edge(last_node._name + " " + last_node._line[0], (stat._name + " " + stat._line[0]), **att3)
         last_node = stat
 
 def get_metro_graph() -> MetroGraph:
     metro =  MetroGraph() 
     lst_stations: Stations = read_stations()
     lst_accesses: Accesses = read_accesses()
-    add_nodes_and_edges_from_lines(metro, None, None, lst_stations)
+    add_nodes_and_edges_from_lines(metro, None, None, lst_stations, lst_accesses)
     for access in lst_accesses: 
         metro.add_node(access._name, pos=access._location)
     return metro
@@ -67,53 +82,19 @@ class Station:
         self._color = color
         self._location = geometry
 
-    def get_station_code(self) -> int:
-        return self._station_code
-    
-    def get_name(self) -> str:
-        return self._name
-    
-    def get_line(self) -> Tuple[str, int]:
-        return self._line
-    
-    def get_servei(self) -> Tuple[str, str]:
-        return self._servei
-    
-    def get_color(self) -> Tuple[str, int]:
-        return self._line
-    
-    def get_location(self) -> location:
-        return self._location
-
 class Access:
     _name: str
     _station_code: int
     _station_name: str
-    _accesstypte: bool  # true if accessible, false if not
+    _accesstype: str 
     _location: location
 
     def __init__(self, name: str, station_code: int, station_name: str, accesstype: str, geometry: location) -> None:
         self._name = name 
         self._station_code = station_code
         self._station_name = station_name 
-        if accesstype == "Accessible": 
-            self._accesstypte = True 
-        else: 
-            self._accesstypte = False 
+        self._accesstype = accesstype
         self._location = geometry
-    
-    def get_name(self) -> str:
-        return self._name
-
-    def get_station_code(self) -> int:
-        return self._station_code
-    
-    def get_acssesstype(self) -> bool:
-        return self._accesstypte
-    
-    def get_location(self) -> location:
-        return self._location
-
 
 Stations = List[Station]
 
@@ -140,20 +121,13 @@ def read_accesses() -> Accesses:
 
 def point(geomety: str) -> location:  
     word: list[str] = geomety.split()
-    return (float(word[2].replace(")", "")), float(word[1].replace("(", "")))
+    return (float(word[1].replace("(", "")), float(word[2].replace(")", "")))
 
 def exec() -> None: 
     metro = get_metro_graph()
-    for node1, node2, data in metro.edges(data=True):
-        print("dist", "(", node1, ") --> (", node2,") == ", data['weight'])
     path = nx.shortest_path(metro, source='Av. Carrilet L1', target='Fondo L1', weight='weight', method='dijkstra')
     print(path)
-    n = len(path)
-    for i in range(0, n-1): 
-        metro.remove_edge(path[i], path[i+1])
-        metro.add_edge(path[i], path[i+1], color='red')
     nx.draw(metro, nx.get_node_attributes(metro,'pos'), node_size=10, with_labels=False)
     plt.savefig("path.png")
-
 
 exec()
