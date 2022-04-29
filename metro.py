@@ -1,16 +1,39 @@
 
+from attr import attributes
 import pandas as pd
 import networkx as nx
 from typing import Optional, List, Tuple
 import matplotlib.pyplot as plt
+from haversine import *
 
 MetroGraph = nx.Graph
 
 def get_metro_graph() -> MetroGraph:
     metro =  MetroGraph() 
     lst_stations: Stations = read_stations()
+    lst_accesses: Accesses = read_accesses()
+    nom_linia = "qq"
+    node_anterior = ""
+    pos_anterior: location = (0, 0)
     for stat in lst_stations: 
-        metro.add_node(stat._name, pos=stat._location)
+        attributes = {
+            'pos': stat._location, 
+            'color': stat._color,
+            'type': 'Station'
+        }
+        metro.add_node(stat._name, **attributes)
+        if stat._line[0] != nom_linia: 
+            nom_linia = stat._line[0]
+        else: 
+            att1 = {
+                'weight': haversine(node_anterior._location, stat._location),
+                'l':(node_anterior._location, stat._location),
+                'type': 'access'
+            }
+            metro.add_edge(node_anterior._name, stat._name, **att1)
+        node_anterior = stat
+    for access in lst_accesses: 
+        metro.add_node(access._name, pos=access._location)
     return metro
 
 location = Tuple[float, float]
@@ -68,11 +91,20 @@ def read_accesses() -> Accesses:
 
 def point(geomety: str) -> location:  
     word: list[str] = geomety.split()
-    return (float(word[1].replace("(", "")), float(word[2].replace(")", "")))
+    return (float(word[2].replace(")", "")), float(word[1].replace("(", "")))
 
 def exec() -> None: 
     metro = get_metro_graph()
-    nx.draw(metro, nx.get_node_attributes(metro, 'pos'), with_labels=True, node_size=0)
+    for node1, node2, data in metro.edges(data=True):
+        print("dist", "(", node1, ") --> (", node2,") == ", data['weight'])
+    path = nx.shortest_path(metro, source='Av. Carrilet', target='Fondo', weight='weight', method='dijkstra')
+    print(path)
+    n = len(path)
+    for i in range(0, n-1): 
+        metro.remove_edge(path[i], path[i+1])
+        metro.add_edge(path[i], path[i+1], color='red')
+    nx.draw(metro, nx.get_node_attributes(metro,'pos'), node_size=10, with_labels=False)
     plt.savefig("path.png")
+
 
 exec()
