@@ -8,30 +8,43 @@ from haversine import *
 
 MetroGraph = nx.Graph
 
+def get_att_station(stat) -> dict: 
+    attributes = {
+            'type': 'Station',
+            'name': stat._name,
+            'line': stat._line[0],
+            'pos': stat._location, 
+            'color': stat._color,
+        } 
+    return attributes
+
+def get_att_tram(stat, last_node) -> dict: 
+    attributes = {
+                'weight': haversine(last_node._location, stat._location),
+                'line': stat._line[0],
+                'color': stat._color,
+                'type': 'tram'
+            }
+    return attributes
+
+def add_nodes_and_edges_from_lines(metro: MetroGraph(), last_line: None, last_node, lst_stations) -> None: 
+    for stat in lst_stations: 
+        att1 = get_att_station(stat)
+        metro.add_node((stat._name + " " + stat._line[0]), **att1)
+
+        if stat._line[0] != last_line: 
+            last_line = stat._line[0]
+        else: 
+            get_att_tram(stat, last_node)
+            att2 = get_att_tram(stat, last_node)
+            metro.add_edge(last_node._name + " " + last_node._line[0], (stat._name + " " + stat._line[0]), **att2)
+        last_node = stat
+
 def get_metro_graph() -> MetroGraph:
     metro =  MetroGraph() 
     lst_stations: Stations = read_stations()
     lst_accesses: Accesses = read_accesses()
-    nom_linia = "qq"
-    node_anterior = ""
-    pos_anterior: location = (0, 0)
-    for stat in lst_stations: 
-        attributes = {
-            'pos': stat._location, 
-            'color': stat._color,
-            'type': 'Station'
-        }
-        metro.add_node(stat._name, **attributes)
-        if stat._line[0] != nom_linia: 
-            nom_linia = stat._line[0]
-        else: 
-            att1 = {
-                'weight': haversine(node_anterior._location, stat._location),
-                'l':(node_anterior._location, stat._location),
-                'type': 'access'
-            }
-            metro.add_edge(node_anterior._name, stat._name, **att1)
-        node_anterior = stat
+    add_nodes_and_edges_from_lines(metro, None, None, lst_stations)
     for access in lst_accesses: 
         metro.add_node(access._name, pos=access._location)
     return metro
@@ -102,7 +115,7 @@ def exec() -> None:
     metro = get_metro_graph()
     for node1, node2, data in metro.edges(data=True):
         print("dist", "(", node1, ") --> (", node2,") == ", data['weight'])
-    path = nx.shortest_path(metro, source='Av. Carrilet', target='Fondo', weight='weight', method='dijkstra')
+    path = nx.shortest_path(metro, source='Av. Carrilet L1', target='Fondo L1', weight='weight', method='dijkstra')
     print(path)
     n = len(path)
     for i in range(0, n-1): 
