@@ -137,12 +137,12 @@ def plot(g: MetroGraph, filename: str) -> None:
     plt.savefig('path.png', transparent=True)
     im1 = Image.open('path.png')
     im2 = Image.open('filename.png')
-    im2.paste(im1)
-    im2.show()
+    im2.paste(im1, (75, 100))
+    im2.save(filename, quality = 100)
 
 def exec() -> None: 
     metro = get_metro_graph()
-    #show(metro)
+    show(metro)
     plot(metro, 'filename.png')
 
 exec()
