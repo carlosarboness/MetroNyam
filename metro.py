@@ -67,6 +67,24 @@ class Station:
         self._color = color
         self._location = geometry
 
+    def get_station_code(self) -> int:
+        return self._station_code
+    
+    def get_name(self) -> str:
+        return self._name
+    
+    def get_line(self) -> Tuple[str, int]:
+        return self._line
+    
+    def get_servei(self) -> Tuple[str, str]:
+        return self._servei
+    
+    def get_color(self) -> Tuple[str, int]:
+        return self._line
+    
+    def get_location(self) -> location:
+        return self._location
+
 class Access:
     _name: str
     _station_code: int
@@ -83,6 +101,19 @@ class Access:
         else: 
             self._accesstypte = False 
         self._location = geometry
+    
+    def get_name(self) -> str:
+        return self._name
+
+    def get_station_code(self) -> int:
+        return self._station_code
+    
+    def get_acssesstype(self) -> bool:
+        return self._accesstypte
+    
+    def get_location(self) -> location:
+        return self._location
+
 
 Stations = List[Station]
 
