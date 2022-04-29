@@ -2,9 +2,11 @@
 from attr import attributes
 import pandas as pd
 import networkx as nx
+from staticmap import *
 from typing import Optional, List, Tuple
 import matplotlib.pyplot as plt
 from haversine import *
+from PIL import Image
 
 MetroGraph = nx.Graph
 
@@ -60,8 +62,6 @@ def get_metro_graph() -> MetroGraph:
     lst_stations: Stations = read_stations()
     lst_accesses: Accesses = read_accesses()
     add_nodes_and_edges_from_lines(metro, None, None, lst_stations, lst_accesses)
-    for access in lst_accesses: 
-        metro.add_node(access._name, pos=access._location)
     return metro
 
 location = Tuple[float, float]
@@ -123,11 +123,26 @@ def point(geomety: str) -> location:
     word: list[str] = geomety.split()
     return (float(word[1].replace("(", "")), float(word[2].replace(")", "")))
 
+def show(g: MetroGraph) -> None:
+    nx.draw(g, nx.get_node_attributes(g,'pos'), node_size=10, node_color="red", edge_color="blue", with_labels=False)
+    plt.show()
+
+def plot(g: MetroGraph, filename: str) -> None: 
+    m = StaticMap(700, 800, url_template='http://a.tile.openstreetmap.org/{z}/{x}/{y}.png')
+    coord = [[2.154007, 41.390205], [2.154007, 41.390205]]
+    m.add_line(Line(coord, 'red', 0)) 
+    image = m.render(center=[2.154007, 41.390205], zoom=11)
+    image.save(filename)
+    nx.draw(g, nx.get_node_attributes(g,'pos'), node_size=10, node_color="red", edge_color="blue", with_labels=False)
+    plt.savefig('path.png', transparent=True)
+    im1 = Image.open('path.png')
+    im2 = Image.open('filename.png')
+    im2.paste(im1)
+    im2.show()
+
 def exec() -> None: 
     metro = get_metro_graph()
-    path = nx.shortest_path(metro, source='Av. Carrilet L1', target='Fondo L1', weight='weight', method='dijkstra')
-    print(path)
-    nx.draw(metro, nx.get_node_attributes(metro,'pos'), node_size=10, with_labels=False)
-    plt.savefig("path.png")
+    #show(metro)
+    plot(metro, 'filename.png')
 
 exec()
