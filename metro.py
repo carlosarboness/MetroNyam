@@ -7,6 +7,7 @@ from typing import Optional, List, Tuple
 import matplotlib.pyplot as plt
 from haversine import *
 from PIL import Image
+import PIL
 
 MetroGraph = nx.Graph
 
@@ -47,8 +48,8 @@ def add_nodes_and_edges_from_lines(metro: MetroGraph(), last_line: None, last_no
         metro.add_node((stat._name + " " + stat._line[0]), **att1)
         while stat._station_code == lst_accesses[i]._station_code: 
             att2 = get_att_accesses(stat, lst_accesses[i])
-            metro.add_node(lst_accesses[i]._name, **att2)
-            #metro.add_edge((stat._name + " " + stat._line[0]), lst_accesses[i]._name)
+            metro.add_node(lst_accesses[i]._location, **att2)
+            metro.add_edge((stat._name + " " + stat._line[0]), lst_accesses[i]._location)
             i = i + 1
         if stat._line[0] != last_line: 
             last_line = stat._line[0]
@@ -128,17 +129,20 @@ def show(g: MetroGraph) -> None:
     plt.show()
 
 def plot(g: MetroGraph, filename: str) -> None: 
-    m = StaticMap(700, 800, url_template='http://a.tile.openstreetmap.org/{z}/{x}/{y}.png')
+    m = StaticMap(680, 600, url_template='http://a.tile.openstreetmap.org/{z}/{x}/{y}.png')
     coord = [[2.154007, 41.390205], [2.154007, 41.390205]]
     m.add_line(Line(coord, 'red', 0)) 
     image = m.render(center=[2.154007, 41.390205], zoom=11)
     image.save(filename)
     nx.draw(g, nx.get_node_attributes(g,'pos'), node_size=10, node_color="red", edge_color="blue", with_labels=False)
     plt.savefig('path.png', transparent=True)
-    im1 = Image.open('path.png')
-    im2 = Image.open('filename.png')
-    im2.paste(im1, (75, 100))
-    im2.save(filename, quality = 100)
+    img = Image.open("path.png")
+    size=(360, 360)
+    img = img.resize(size, Image.ANTIALIAS)
+    img = img.rotate(10, PIL.Image.NEAREST, expand = 1)
+    background = Image.open(filename)
+    background.paste(img, (140, 130), img)
+    background.save(filename,"PNG")
 
 def exec() -> None: 
     metro = get_metro_graph()
