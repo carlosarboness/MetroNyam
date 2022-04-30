@@ -1,3 +1,4 @@
+
 from attr import attributes
 import pandas as pd
 import networkx as nx
@@ -10,30 +11,27 @@ import PIL
 
 MetroGraph = nx.Graph
 
-
-def get_att_station(stat) -> dict:
+def get_att_station(stat) -> dict: 
     attributes = {
             'type': 'Station',
             'name': stat._name,
             'line': stat._line[0],
             'pos': stat._location,
             'color': stat._color,
-        }
+        } 
     return attributes
 
-
-def get_att_tram(stat, last_node) -> dict:
+def get_att_tram(stat, last_node) -> dict: 
 
     attributes = {
                 'weight': haversine(last_node._location, stat._location),
                 'line': stat._line[0],
                 'color': stat._color,
-                'type': 'tram'
+                'type': 'tram',
             }
     return attributes
 
-
-def get_att_accesses(stat, access) -> dict:
+def get_att_accesses(stat, access) -> dict: 
     attributes = {
                 'weight': haversine(stat._location, access._location),
                 'pos': access._location,
@@ -43,34 +41,35 @@ def get_att_accesses(stat, access) -> dict:
             }
     return attributes
 
-
-def add_nodes_and_edges_from_lines(metro: MetroGraph(), last_line: None, last_node: None, lst_stations, lst_accesses) -> None:
+def add_nodes_and_edges_from_lines(metro: MetroGraph(), last_line: None, last_node: None, lst_stations, lst_accesses) -> None: 
     i = 0
-    for stat in lst_stations:
+    for stat in lst_stations: 
         att1 = get_att_station(stat)
         metro.add_node((stat._name + " " + stat._line[0]), **att1)
-        while stat._station_code == lst_accesses[i]._station_code:
+        while stat._station_code == lst_accesses[i]._station_code: 
             att2 = get_att_accesses(stat, lst_accesses[i])
             metro.add_node(lst_accesses[i]._location, **att2)
             metro.add_edge((stat._name + " " + stat._line[0]), lst_accesses[i]._location)
+            edges_list.append((stat._location, lst_accesses[i]._location))
             i = i + 1
-        if stat._line[0] != last_line:
+        if stat._line[0] != last_line: 
             last_line = stat._line[0]
-        else:
+        else: 
             att3 = get_att_tram(stat, last_node)
             metro.add_edge(last_node._name + " " + last_node._line[0], (stat._name + " " + stat._line[0]), **att3)
+            edges_list.append((stat._location, last_node._location))
         last_node = stat
 
+edges_list : List[Tuple[float, float]] = []
 
 def get_metro_graph() -> MetroGraph:
-    metro = MetroGraph()
+    metro =  MetroGraph() 
     lst_stations: Stations = read_stations()
     lst_accesses: Accesses = read_accesses()
     add_nodes_and_edges_from_lines(metro, None, None, lst_stations, lst_accesses)
     return metro
 
 location = Tuple[float, float]
-
 
 class Station:
     _station_code: int
@@ -82,111 +81,84 @@ class Station:
 
     def __init__(self, station_code: int, name: str, line: Tuple[str, int], servei: Tuple[str, str], color: str, geometry: location) -> None:
         self._station_code = station_code
-        self._name = name
-        self._line = line
+        self._name = name 
+        self._line = line 
         self._servei = servei
         self._color = color
         self._location = geometry
-
-    def get_station_code(self) -> int:
-        return self._station_code
-
-    def get_name(self) -> str:
-        return self._name
-
-    def get_line(self) -> Tuple[str, int]:
-        return self._line
-
-    def get_servei(self) -> Tuple[str, str]:
-        return self._servei
-
-    def get_color(self) -> Tuple[str, int]:
-        return self._line
-
-    def get_location(self) -> location:
-        return self._location
-
 
 class Access:
     _name: str
     _station_code: int
     _station_name: str
-    _accesstype: str
+    _accesstype: str 
     _location: location
 
     def __init__(self, name: str, station_code: int, station_name: str, accesstype: str, geometry: location) -> None:
-        self._name = name
+        self._name = name 
         self._station_code = station_code
-        self._station_name = station_name
+        self._station_name = station_name 
         self._accesstype = accesstype
         self._location = geometry
-
-    def get_name(self) -> str:
-        return self._name
-
-    def get_station_code(self) -> int:
-        return self._station_code
-
-    def get_acssesstype(self) -> bool:
-        return self._accesstypte
-
-    def get_location(self) -> location:
-        return self._location
 
 Stations = List[Station]
 
 Accesses = List[Access]
 
-
 def read_stations() -> Stations:
     df = pd.read_csv('stat.csv')
     Stations_list: Stations = []
     for index, row in df.iterrows():
-        s = Station(int(row['CODI_ESTACIO']), row['NOM_ESTACIO'], (row['NOM_LINIA'],
+        s = Station(int(row['CODI_ESTACIO']), row['NOM_ESTACIO'], (row['NOM_LINIA'], 
                     int(row['ORDRE_ESTACIO'])), (row['ORIGEN_SERVEI'], row['DESTI_SERVEI']),
                     row['COLOR_LINIA'], point(row['GEOMETRY']))
         Stations_list.append(s)
     return Stations_list
 
-
-def read_accesses() -> Accesses:
+def read_accesses() -> Accesses: 
     df = pd.read_csv('acc.csv')
     Accesses_list: Accesses = []
     for index, row in df.iterrows():
-        a = Access(row['NOM_ACCES'], int(row['ID_ESTACIO']), row['NOM_ESTACIO'],
+        a = Access(row['NOM_ACCES'], int(row['ID_ESTACIO']) , row['NOM_ESTACIO'], 
         row['NOM_TIPUS_ACCESSIBILITAT'], point(row['GEOMETRY']))
         Accesses_list.append(a)
     return Accesses_list
 
-
-def point(geomety: str) -> location:
+def point(geomety: str) -> location:  
     word: list[str] = geomety.split()
     return (float(word[1].replace("(", "")), float(word[2].replace(")", "")))
 
-
 def show(g: MetroGraph) -> None:
-    nx.draw(g, nx.get_node_attributes(g, 'pos'), node_size=10, node_color="red", edge_color="blue", with_labels=False)
+    nx.draw(g, nx.get_node_attributes(g,'pos'), node_size=10, node_color="red", edge_color="blue", with_labels=False)
     plt.show()
 
-
-def plot(g: MetroGraph, filename: str) -> None:
+def plot(g: MetroGraph, filename: str) -> None: 
     m = StaticMap(680, 600, url_template='http://a.tile.openstreetmap.org/{z}/{x}/{y}.png')
-    coord = [[2.154007, 41.390205], [2.154007, 41.390205]]
-    m.add_line(Line(coord, 'red', 0))
-    image = m.render(center=[2.154007, 41.390205], zoom=11)
-    image.save(filename)
-    nx.draw(g, nx.get_node_attributes(g, 'pos'), node_size=10, node_color="red", edge_color="blue", with_labels=False)
+    for index, node in g.nodes(data=True): 
+        coord = (node['pos'])
+        marker_node = CircleMarker(coord, 'red', 5)
+        m.add_marker(marker_node)
+    for edge in edges_list: 
+        coord = (edge[0], edge[1])
+        line = Line(coord, 'blue', 2)
+        m.add_line(line)
+    image = m.render()
+    image.save(filename, quality=100)
+    '''
+    image = m.render(zoom=11)
+    image.save(filename, quality=100)
+    nx.draw(g, nx.get_node_attributes(g,'pos'), node_size=10, node_color="red", edge_color="blue", with_labels=False)
     plt.savefig('path.png', transparent=True)
     img = Image.open("path.png")
-    size = (360, 360)
+    size=(360, 360)
     img = img.resize(size, Image.ANTIALIAS)
-    img = img.rotate(10, PIL.Image.NEAREST, expand=1)
+    img = img.rotate(10, PIL.Image.NEAREST, expand = 1)
     background = Image.open(filename)
     background.paste(img, (140, 130), img)
-    background.save(filename, "PNG")
+    background.save(filename,"PNG", quality=100)
+    '''
 
-
-def exec() -> None:
+def exec() -> None: 
     metro = get_metro_graph()
     show(metro)
     plot(metro, 'filename.png')
