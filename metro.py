@@ -50,17 +50,13 @@ def add_nodes_and_edges_from_lines(metro: MetroGraph(), last_line: None, last_no
             att2 = get_att_accesses(stat, lst_accesses[i])
             metro.add_node(lst_accesses[i]._location, **att2)
             metro.add_edge((stat._name + " " + stat._line[0]), lst_accesses[i]._location)
-            edges_list.append((stat._location, lst_accesses[i]._location))
             i = i + 1
         if stat._line[0] != last_line: 
             last_line = stat._line[0]
         else: 
             att3 = get_att_tram(stat, last_node)
             metro.add_edge(last_node._name + " " + last_node._line[0], (stat._name + " " + stat._line[0]), **att3)
-            edges_list.append((stat._location, last_node._location))
         last_node = stat
-
-edges_list : List[Tuple[float, float]] = []
 
 def get_metro_graph() -> MetroGraph:
     metro =  MetroGraph() 
@@ -138,26 +134,13 @@ def plot(g: MetroGraph, filename: str) -> None:
         coord = (node['pos'])
         marker_node = CircleMarker(coord, 'red', 5)
         m.add_marker(marker_node)
-    for edge in edges_list: 
-        coord = (edge[0], edge[1])
+    for n1 in g.edges(data=True):
+        coord = (g.nodes[n1[0]]['pos'], g.nodes[n1[1]]['pos'])
         line = Line(coord, 'blue', 2)
         m.add_line(line)
     image = m.render()
     image.save(filename, quality=100)
-    '''
-    image = m.render(zoom=11)
-    image.save(filename, quality=100)
-    nx.draw(g, nx.get_node_attributes(g,'pos'), node_size=10, node_color="red", edge_color="blue", with_labels=False)
-    plt.savefig('path.png', transparent=True)
-    img = Image.open("path.png")
-    size=(360, 360)
-    img = img.resize(size, Image.ANTIALIAS)
-    img = img.rotate(10, PIL.Image.NEAREST, expand = 1)
-    background = Image.open(filename)
-    background.paste(img, (140, 130), img)
-    background.save(filename,"PNG", quality=100)
-    '''
-
+    
 def exec() -> None: 
     metro = get_metro_graph()
     show(metro)
