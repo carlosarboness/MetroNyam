@@ -143,11 +143,9 @@ def add_link_edges(metro: MetroGraph) -> None:
     for stat1 in metro.nodes(data=True):
         if stat1[1]['type'] == 'Station':
             for stat2 in metro.nodes(data=True):
-                if stat2[1]['type'] == 'Station':
-                    if stat1 != stat2:
-                        if stat1[1]['name'] == stat2[1]['name']:
-                            att = get_att_link(stat1, stat2)
-                            metro.add_edge(stat1[0], stat2[0], **att)
+                if stat2[1]['type'] == 'Station' and stat1 != stat2 and stat1[1]['name'] == stat2[1]['name']:
+                        att = get_att_link(stat1, stat2)
+                        metro.add_edge(stat1[0], stat2[0], **att)
 
 
 def get_metro_graph() -> MetroGraph:
@@ -155,7 +153,7 @@ def get_metro_graph() -> MetroGraph:
     lst_stations: Stations = read_stations()
     lst_accesses: Accesses = read_accesses()
     add_nodes_and_edges_from_lines(metro, None, None, lst_stations, lst_accesses)
-    # add_link_edges(metro)
+    add_link_edges(metro)
     return metro
 
 
