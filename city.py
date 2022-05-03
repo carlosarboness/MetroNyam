@@ -31,7 +31,15 @@ def load_osmnx_graph(filename: str) -> OsmnxGraph:
     return ox.load_graphml(filename)
 
 def build_city_graph(g1: OsmnxGraph, g2: MetroGraph) -> CityGraph: 
-    return nx.full_join(g1, g2)
+    g = CityGraph = CityGraph()
+    for n1 in g1.nodes(): 
+        g.add_node(n1)
+    for n2 in g2.nodes(): 
+        g.add_node(n2)
+    for e1 in g1.edges(): 
+        g.add_edge(e1)
+    for e2 in g2.edges(): 
+        g.add_edge(e2)
 
 def exec() -> None: 
     g1 = get_osmnx_graph()
