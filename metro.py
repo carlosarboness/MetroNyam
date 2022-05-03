@@ -128,7 +128,7 @@ def add_nodes_and_edges_from_lines(metro: MetroGraph(), last_line: None, last_no
         metro.add_node((stat._name + " " + stat._line[0]), **att1)
         while stat.get_station_code() == lst_accesses[i].get_station_code():
             att2 = get_att_accesses(stat, lst_accesses[i])
-            metro.add_node(lst_accesses[i].get_location(), **att2)
+            metro.add_node(lst_accesses[i].get_location(), **att2) #vigilar que estem guardant els nodes d'accessos per la seva posició
             metro.add_edge((stat._name + " " + stat.get_line()[0]), lst_accesses[i].get_location())
             i = i + 1
         if stat._line[0] != last_line:
@@ -140,9 +140,9 @@ def add_nodes_and_edges_from_lines(metro: MetroGraph(), last_line: None, last_no
 
 
 def add_link_edges(metro: MetroGraph) -> None:
-    for stat1 in metro.nodes(data=True):
+    for stat1 in metro.nodes.data():
         if stat1[1]['type'] == 'Station':
-            for stat2 in metro.nodes(data=True):
+            for stat2 in metro.nodes.data():
                 if stat2[1]['type'] == 'Station' and stat1 != stat2 and stat1[1]['name'] == stat2[1]['name']:
                         att = get_att_link(stat1, stat2)
                         metro.add_edge(stat1[0], stat2[0], **att)
@@ -202,9 +202,9 @@ def plot(g: MetroGraph, filename: str) -> None:
     image.save(filename, quality=100)
 
 
-def exec() -> None:
+"""def exec() -> None:
     metro = get_metro_graph()
     show(metro)
     plot(metro, 'filename.png')
 
-exec()
+exec()"""
