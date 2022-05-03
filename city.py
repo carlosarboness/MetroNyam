@@ -35,19 +35,17 @@ def add_access_streets(g: CityGraph) -> None:
     dist = float('inf')
     n1 = ""
     n2 = ""
-    for access in g.nodes(data=True):
+    for access in g.nodes.data():
         if access[1]['type'] == 'Access':
-            for street in g.nodes(data=True):
+            for street in g.nodes.data():
                 if street[1]['type'] == 'Street' and haversine(street[1]['pos'], access[1]['pos']) < dist:
                     dist = haversine(street[1]['pos'], access[1]['pos'])
-                    n1 = street[1]
-                    n2 = access[1]
+                    n1 = street[0]
+                    n2 = access[0]
         att4 = {
-            'type': 'Street',
-            #'length': haversine(n1[1]['pos'], n2[1]['pos'])
+            'type': 'Street'
         }
-        g.add_edge(n1, n2, **att4)
-                    
+        g.add_edge(n1, n2, **att4) 
 
 def build_city_graph(g1: OsmnxGraph, g2: MetroGraph) -> CityGraph: 
     g : CityGraph = CityGraph()
