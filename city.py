@@ -9,21 +9,34 @@ import matplotlib.pyplot as plt
 from haversine import *
 from PIL import Image
 import PIL
+import os
+from metro import*
 
 CityGraph = nx.Graph
 
 OsmnxGraph = nx.MultiDiGraph
 
 def get_osmnx_graph() -> OsmnxGraph:
-    G = ox.graph_from_place('Barcelona, España' , network_type='drive')
-    ox.plot_graph(G)
-
-
+    if os.path.exists('filename1.osm'): 
+        return load_osmnx_graph('filename1.osm')
+    else: 
+        g = ox.graph_from_place('Barcelona, España', network_type='walk')
+        save_osmnx_graph(g, 'filename1.osm')
+        return g
+    
 def save_osmnx_graph(g: OsmnxGraph, filename: str) -> None:
-    ox.save_load.save_graph_osm(g, filename=filename)
+    ox.save_graphml(g, filename)
 
+def load_osmnx_graph(filename: str) -> OsmnxGraph: 
+    return ox.load_graphml(filename)
+
+def build_city_graph(g1: OsmnxGraph, g2: MetroGraph) -> CityGraph: 
+    return nx.full_join(g1, g2)
 
 def exec() -> None: 
-    g = get_osmnx_graph()
-    save_osmnx_graph(g, "filename1.png")
+    g1 = get_osmnx_graph()
+    g2 = get_metro_graph()
+    g = build_city_graph(g1, g2)
+    show(g)
+
 exec()
