@@ -17,6 +17,8 @@ CityGraph = nx.Graph
 
 OsmnxGraph = nx.MultiDiGraph
 
+Coord = (float, float) 
+
 def get_osmnx_graph() -> OsmnxGraph:
     if os.path.exists('filename1.osm'): 
         return load_osmnx_graph('filename1.osm')
@@ -39,7 +41,7 @@ def add_access_streets(g: CityGraph) -> None:
         if access[1]['type'] == 'Access':
             for street in g.nodes.data():
                 if street[1]['type'] == 'Street' and haversine(street[1]['pos'], access[1]['pos']) < dist:
-                    dist = haversine(street[1]['pos'], access[1]['pos'])
+                    haversine(street[1]['pos'], access[1]['pos'])
                     n1 = street[0]
                     n2 = access[0]
         att4 = {
@@ -68,14 +70,39 @@ def build_city_graph(g1: OsmnxGraph, g2: MetroGraph) -> CityGraph:
         if e2[0] != e2[1]: 
             g.add_edge(e2[0], e2[1], **e2[2])
 
-    add_access_streets(g)
+    #add_access_streets(g)
 
     return g
+
+def show1(g: CityGraph) -> None: 
+    nx.draw(g, nx.get_node_attributes(g, 'pos'), node_size=10, with_labels=False)
+    plt.show()
+    
+def plot1(g: CityGraph, filename: str) -> None:
+    m = StaticMap(680, 600, url_template='http://a.tile.openstreetmap.org/{z}/{x}/{y}.png')
+    for index, node in g.nodes(data=True):
+        coord = (node['pos'])
+        if node['type'] == 'Street': 
+            marker_node = CircleMarker(coord, 'green', 1)
+        else: 
+            marker_node = CircleMarker(coord, 'red', 1)
+        m.add_marker(marker_node)
+    for n1 in g.edges(data=True):
+        coord = (g.nodes[n1[0]]['pos'], g.nodes[n1[1]]['pos'])
+        if g.edges[n1[0],n1[1]]['type'] == 'Street': 
+            line = Line(coord, 'yellow', 1)
+        else: 
+            line = Line(coord, 'blue', 1)
+        m.add_line(line)
+    image = m.render()
+    image.save(filename, quality=100)
+
 
 def exec() -> None: 
     g1 = get_osmnx_graph()
     g2 = get_metro_graph()
     g = build_city_graph(g1, g2)
-    show(g)
-
+    show1(g)
+    plot1(g,'filename.png')
+   
 exec()
