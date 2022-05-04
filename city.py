@@ -34,20 +34,20 @@ def load_osmnx_graph(filename: str) -> OsmnxGraph:
     return ox.load_graphml(filename)
 
 def add_access_streets(g: CityGraph) -> None:
-    dist = float('inf')
-    n1 = ""
-    n2 = ""
+    dist = 999
+    node1 = ""
+    node2 = ""
     for access in g.nodes.data():
         if access[1]['type'] == 'Access':
+            node1 = access[0]
             for street in g.nodes.data():
-                if street[1]['type'] == 'Street' and haversine(street[1]['pos'], access[1]['pos']) < dist:
-                    haversine(street[1]['pos'], access[1]['pos'])
-                    n1 = street[0]
-                    n2 = access[0]
-        att4 = {
-            'type': 'Street'
-        }
-        g.add_edge(n1, n2, **att4) 
+                d = haversine(access[1]['pos'], street[1]['pos'])
+                if street[1]['type'] == 'Street' and d < dist:
+                    dist = d
+                    node2 = street[0]
+            g.add_edge(node1, node2, type='Street')
+            node = ("", "")
+            dist = 999
 
 def build_city_graph(g1: OsmnxGraph, g2: MetroGraph) -> CityGraph: 
     g : CityGraph = CityGraph()
@@ -70,7 +70,7 @@ def build_city_graph(g1: OsmnxGraph, g2: MetroGraph) -> CityGraph:
         if e2[0] != e2[1]: 
             g.add_edge(e2[0], e2[1], **e2[2])
 
-    #add_access_streets(g)
+    add_access_streets(g)
 
     return g
 
@@ -103,6 +103,13 @@ def exec() -> None:
     g2 = get_metro_graph()
     g = build_city_graph(g1, g2)
     show1(g)
-    plot1(g,'filename.png')
+    #plot1(g,'filename.png')
+    """
+    for access in g.nodes.data():
+        if access[1]['type'] == 'Access':
+            for street in g.nodes.data():
+                if street[1]['type'] == 'Street':
+                    print(haversine(access[1]['pos'], street[1]['pos']))
+    """
    
 exec()
