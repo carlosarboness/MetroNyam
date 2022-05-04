@@ -80,6 +80,32 @@ Stations = List[Station]
 Accesses = List[Access]
 
 
+def read_stations() -> Stations:
+    df = pd.read_csv('stat.csv')
+    Stations_list: Stations = []
+    for index, row in df.iterrows():
+        s = Station(int(row['CODI_ESTACIO']), row['NOM_ESTACIO'], (row['NOM_LINIA'],
+                    int(row['ORDRE_ESTACIO'])), (row['ORIGEN_SERVEI'], row['DESTI_SERVEI']),
+                    row['COLOR_LINIA'], point(row['GEOMETRY']))
+        Stations_list.append(s)
+    return Stations_list
+
+
+def read_accesses() -> Accesses:
+    df = pd.read_csv('acc.csv')
+    Accesses_list: Accesses = []
+    for index, row in df.iterrows():
+        a = Access(row['NOM_ACCES'], int(row['ID_ESTACIO']), row['NOM_ESTACIO'],
+        row['NOM_TIPUS_ACCESSIBILITAT'], point(row['GEOMETRY']))
+        Accesses_list.append(a)
+    return Accesses_list
+
+
+def point(geomety: str) -> location:
+    word: list[str] = geomety.split()
+    return (float(word[1].replace("(", "")), float(word[2].replace(")", "")))
+
+
 MetroGraph = nx.Graph
 
 
@@ -127,20 +153,20 @@ def get_att_link(stat1: dict, stat2: dict) -> dict:
 def add_nodes_and_edges_from_lines(metro: MetroGraph(), last_line: None, last_node: Optional[Station], lst_stations: Stations, lst_accesses: Accesses) -> None:
     for stat in lst_stations:
         att1 = get_att_station(stat)
-        metro.add_node((stat._name), **att1)
+        metro.add_node((stat.get_name() + '-' + str(stat.get_station_code())), **att1)
         if stat._line[0] != last_line:
             last_line = stat.get_line()[0]
         else:
             att3 = get_att_tram(stat, last_node)
-            metro.add_edge(last_node.get_name(), stat.get_name(), **att3)
+            metro.add_edge(last_node.get_name() + '-' + str(last_node.get_station_code()), stat.get_name() + '-' + str(stat.get_station_code()), **att3)
         last_node = stat
     for access in lst_accesses: 
         att2 = get_att_accesses(stat, access)
-        metro.add_node((access.get_name() + "-" + access.get_station_name()), **att2)
+        metro.add_node((access.get_name()), **att2)
         attx = {
             'type':'link',
         }
-        metro.add_edge((access.get_station_name()), (access.get_name() + "-" + access.get_station_name()), **attx)
+        metro.add_edge((access.get_station_name() + '-' + str(access.get_station_code())), (access.get_name()), **attx)
 
 def add_link_edges(metro: MetroGraph) -> None:
     for stat1 in metro.nodes(data=True):
@@ -158,32 +184,6 @@ def get_metro_graph() -> MetroGraph:
     add_nodes_and_edges_from_lines(metro, None, None, lst_stations, lst_accesses)
     add_link_edges(metro)
     return metro
-
-
-def read_stations() -> Stations:
-    df = pd.read_csv('stat.csv')
-    Stations_list: Stations = []
-    for index, row in df.iterrows():
-        s = Station(int(row['CODI_ESTACIO']), row['NOM_ESTACIO'], (row['NOM_LINIA'],
-                    int(row['ORDRE_ESTACIO'])), (row['ORIGEN_SERVEI'], row['DESTI_SERVEI']),
-                    row['COLOR_LINIA'], point(row['GEOMETRY']))
-        Stations_list.append(s)
-    return Stations_list
-
-
-def read_accesses() -> Accesses:
-    df = pd.read_csv('acc.csv')
-    Accesses_list: Accesses = []
-    for index, row in df.iterrows():
-        a = Access(row['NOM_ACCES'], int(row['ID_ESTACIO']), row['NOM_ESTACIO'],
-        row['NOM_TIPUS_ACCESSIBILITAT'], point(row['GEOMETRY']))
-        Accesses_list.append(a)
-    return Accesses_list
-
-
-def point(geomety: str) -> location:
-    word: list[str] = geomety.split()
-    return (float(word[1].replace("(", "")), float(word[2].replace(")", "")))
 
 
 def show(g: MetroGraph) -> None:
@@ -206,6 +206,13 @@ def plot(g: MetroGraph, filename: str) -> None:
 
 
 def exec() -> None:
-    metro = get_metro_graph()
-    show(metro)
-    plot(metro, 'filename.png')
+    m = get_metro_graph()
+    for node in m.nodes.data():
+        print(node)
+    print()
+    for edge in m.edges.data():
+        print(edge)
+    show(m)
+    plot(m, 'filename.png')
+
+exec()
