@@ -40,7 +40,7 @@ class Station:
         return self._servei
 
     def get_color(self) -> Tuple[str, int]:
-        return self._line
+        return self._color
 
     def get_location(self) -> location:
         return self._location
@@ -65,6 +65,9 @@ class Access:
 
     def get_station_code(self) -> int:
         return self._station_code
+
+    def get_station_name(self) -> str:
+        return self._station_name
 
     def get_acssesstype(self) -> bool:
         return self._accesstype
@@ -122,27 +125,27 @@ def get_att_link(stat1: dict, stat2: dict) -> dict:
 
 
 def add_nodes_and_edges_from_lines(metro: MetroGraph(), last_line: None, last_node: Optional[Station], lst_stations: Stations, lst_accesses: Accesses) -> None:
-    i = 0
     for stat in lst_stations:
         att1 = get_att_station(stat)
-        metro.add_node((stat._name + " " + stat._line[0]), **att1)
-        while stat.get_station_code() == lst_accesses[i].get_station_code():
-            att2 = get_att_accesses(stat, lst_accesses[i])
-            metro.add_node(lst_accesses[i].get_location(), **att2) #vigilar que estem guardant els nodes d'accessos per la seva posició
-            metro.add_edge((stat._name + " " + stat.get_line()[0]), lst_accesses[i].get_location())
-            i = i + 1
+        metro.add_node((stat._name), **att1)
         if stat._line[0] != last_line:
             last_line = stat.get_line()[0]
         else:
             att3 = get_att_tram(stat, last_node)
-            metro.add_edge(last_node.get_name() + " " + last_node.get_line()[0], (stat.get_name() + " " + stat.get_line()[0]), **att3)
+            metro.add_edge(last_node.get_name(), stat.get_name(), **att3)
         last_node = stat
-
+    for access in lst_accesses: 
+        att2 = get_att_accesses(stat, access)
+        metro.add_node((access.get_name() + "-" + access.get_station_name()), **att2)
+        attx = {
+            'type':'link',
+        }
+        metro.add_edge((access.get_station_name()), (access.get_name() + "-" + access.get_station_name()), **attx)
 
 def add_link_edges(metro: MetroGraph) -> None:
-    for stat1 in metro.nodes.data():
+    for stat1 in metro.nodes(data=True):
         if stat1[1]['type'] == 'Station':
-            for stat2 in metro.nodes.data():
+            for stat2 in metro.nodes(data=True):
                 if stat2[1]['type'] == 'Station' and stat1 != stat2 and stat1[1]['name'] == stat2[1]['name']:
                         att = get_att_link(stat1, stat2)
                         metro.add_edge(stat1[0], stat2[0], **att)
