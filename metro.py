@@ -209,5 +209,3 @@ def exec() -> None:
     metro = get_metro_graph()
     show(metro)
     plot(metro, 'filename.png')
-
-exec()
