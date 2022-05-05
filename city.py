@@ -117,9 +117,10 @@ def plot1(g: CityGraph, filename: str) -> None:
     image.save(filename, quality=100)
 
 
-def plot_path(g: CityGraph, p: Path, filename: str) -> None:
+def plot_path(g: CityGraph, p: Path, src: Coord, dst: Coord, filename: str) -> None:
     m = StaticMap(550, 550, url_template='http://a.tile.openstreetmap.org/{z}/{x}/{y}.png')
     i = 0
+    m.add_line(Line((src, g.nodes[p[0]]['pos']), 'black', 5))
     while i < len(p)-1:
         coord = g.nodes[p[i]]['pos']
         next_coord = g.nodes[p[i+1]]['pos']
@@ -131,6 +132,7 @@ def plot_path(g: CityGraph, p: Path, filename: str) -> None:
             line = Line((coord, next_coord), 'red', 5)
         m.add_line(line)
         i = i + 1
+    m.add_line(Line((dst, g.nodes[p[-1]]['pos']), 'black', 5))
     image = m.render()
     image.save(filename, quality=100)
 
@@ -141,11 +143,11 @@ def exec() -> None:
     g = build_city_graph(g1, g2)
     # show1(g)
     # plot1(g,'filename.png')
-    src = (2.1677043, 41.374507)
-    dst = (2.1411482, 41.3738284)
+    src = (2.1231079101562504, 41.389945964560695)
+    dst = (2.1917724609375004, 41.398960290742316)
     s = find_path(g1, g, src, dst)
     print(s)
-    plot_path(g, s, 'filename.png')
+    plot_path(g, s, src, dst,'filename.png')
 
 
 exec()
