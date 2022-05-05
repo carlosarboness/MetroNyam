@@ -33,21 +33,19 @@ def save_osmnx_graph(g: OsmnxGraph, filename: str) -> None:
 def load_osmnx_graph(filename: str) -> OsmnxGraph: 
     return ox.load_graphml(filename)
 
-def add_access_streets(g: CityGraph) -> None:
-    dist = 999
-    node1 = ""
-    node2 = ""
+def add_access_to_closest_streets(g: CityGraph) -> None:
+    dist = float('inf')
+    closest_street = ""
     for access in g.nodes.data():
         if access[1]['type'] == 'Access':
-            node1 = access[0]
             for street in g.nodes.data():
                 d = haversine(access[1]['pos'], street[1]['pos'])
                 if street[1]['type'] == 'Street' and d < dist:
                     dist = d
-                    node2 = street[0]
-            g.add_edge(node1, node2, type='Street')
-            node = ("", "")
-            dist = 999
+                    closest_street = street[0]
+            g.add_edge(access[0], closest_street, type='Street')
+            closest_street = ""
+            dist = float('inf')
 
 def build_city_graph(g1: OsmnxGraph, g2: MetroGraph) -> CityGraph: 
     g : CityGraph = CityGraph()
@@ -70,7 +68,7 @@ def build_city_graph(g1: OsmnxGraph, g2: MetroGraph) -> CityGraph:
         if e2[0] != e2[1]: 
             g.add_edge(e2[0], e2[1], **e2[2])
 
-    add_access_streets(g)
+    add_access_to_closest_streets(g)
 
     return g
 
