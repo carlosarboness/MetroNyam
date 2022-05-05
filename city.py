@@ -1,4 +1,3 @@
-
 from dis import show_code
 from turtle import distance
 import osmnx as ox 
@@ -83,8 +82,7 @@ NodeID = Union[int, str]
 Path = List[NodeID]
 
 def find_closest_node(ox_g: OsmnxGraph, coo: Coord) -> NodeID:
-    node, dis = ox.distance.nearest_nodes(ox_g, coo[0], coo[1], return_dist = True)
-    print(dis)
+    node = ox.distance.nearest_nodes(ox_g, coo[0], coo[1], return_dist = True)
     return node 
 
 
@@ -92,8 +90,6 @@ def find_path(ox_g: OsmnxGraph, g: CityGraph, src: Coord, dst: Coord) -> Path:
     n_src: NodeID = find_closest_node(ox_g, src)
     n_dst: NodeID = find_closest_node(ox_g, dst)
     return nx.shortest_path(g, source=n_src, target=n_dst, method='dijkstra')
-
-
 
 
 def show1(g: CityGraph) -> None: 
