@@ -119,9 +119,12 @@ def plot_path(g: CityGraph, p: Path, filename: str) -> None:
     while i < len(p)-1:
         coord = g.nodes[p[i]]['pos']
         next_coord = g.nodes[p[i+1]]['pos']
-        marker_node = CircleMarker(coord, 'black', 5)
-        m.add_marker(marker_node)
-        line = Line((coord, next_coord), 'purple', 5)
+        marker_node = CircleMarker(coord, 'blue', 5)
+        #m.add_marker(marker_node)
+        if g.edges[p[i], p[i+1]]['type'] == 'Street': 
+            line = Line((coord, next_coord), 'black', 5)
+        else: 
+            line = Line((coord, next_coord), 'red', 5)
         m.add_line(line)
         i = i + 1
     image = m.render()
