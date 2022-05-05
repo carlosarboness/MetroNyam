@@ -2,7 +2,7 @@
 
 # importa l'API de Telegram
 from telegram.ext import Updater, CommandHandler
-from restaurants import* 
+import restaurants as rs
 from metro import* 
 from city import* 
 
@@ -16,18 +16,44 @@ def help(update, context):
 def author(update, context): 
     context.bot.send_message(chat_id=update.effective_chat.id, text="Carlos Arbonés Sotomayor i Benet Ramió Comas")
 
+rest_dict: dict = {}
+
 def find(update, context): 
     try:
-       query = str(context.args[0])
-       
+        restaurants = rs.read()
+        query = str(context.args[0])
+        filter = rs.find(query, restaurants)
+        txt = "Tria el teu Restaurant!"
+
+        for i in range(1, 13): 
+            rest = filter[i-1]
+            txt += str(i) + ". " + rest.get_name() + "\n"
+            rest_dict[i] = rest
+        
+        context.bot.send_message(chat_id=update.effective_chat.id, text=str(txt))
+
     except Exception as e:
         print(e)
         context.bot.send_message(
             chat_id=update.effective_chat.id,
             text='💣')
 
-def info(update, context): ...
+def info(update, context): 
+    try:
+        n = int(context.args[0])
+        rest: rs.Restaurant = rest_dict[n]
+        txt = "Nom:  " + rest.get_name() + "\n"
+        txt += "Adreça:  " + rest.get_adress()[0] + ", " + rest.get_adress()[1] + "\n"
+        txt += "Barri:  " + rest.get_neighborhood() + "\n"
+        txt += "Districte:  " + rest.get_district() + "\n"
+        txt += "Telèfon:  " + rest.get_tel()
+        context.bot.send_message(chat_id=update.effective_chat.id, text=str(txt))
 
+    except Exception as e:
+        print(e)
+        context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text='💣')
 
 def guide(update, context): ...
 
@@ -41,6 +67,8 @@ dispatcher = updater.dispatcher
 dispatcher.add_handler(CommandHandler('start', start))
 dispatcher.add_handler(CommandHandler('help', help))
 dispatcher.add_handler(CommandHandler('author', author))
+dispatcher.add_handler(CommandHandler('find', find))
+dispatcher.add_handler(CommandHandler('info', info))
 
 
 updater.start_polling()
