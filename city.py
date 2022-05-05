@@ -1,4 +1,3 @@
-
 from dis import show_code
 import osmnx as ox 
 from attr import attributes
@@ -82,17 +81,13 @@ NodeID = Union[int, str]
 Path = List[NodeID]
 
 def find_closest_node(ox_g: OsmnxGraph, coo: Coord) -> NodeID:
-    node = ox.get_nearest_node(ox_g, coo, method='euclidean')
-    return node[0]
-
+    node = ox.distance.nearest_nodes(ox_g, coo[0], coo[1])
+    return node 
 
 def find_path(ox_g: OsmnxGraph, g: CityGraph, src: Coord, dst: Coord) -> Path:
     n_src: NodeID = find_closest_node(ox_g, src)
     n_dst: NodeID = find_closest_node(ox_g, dst)
     return nx.shortest_path(g, source=n_src, target=n_dst, method='dijkstra')
-
-
-
 
 def show1(g: CityGraph) -> None: 
     nx.draw(g, nx.get_node_attributes(g, 'pos'), node_size=10, with_labels=False)
@@ -118,6 +113,22 @@ def plot1(g: CityGraph, filename: str) -> None:
     image = m.render()
     image.save(filename, quality=100)
 
+def plot_path(g: CityGraph, p: Path, filename: str) -> None:
+    m = StaticMap(550, 550, url_template='http://a.tile.openstreetmap.org/{z}/{x}/{y}.png')
+    i = 0
+    while i < len(p)-1:
+        coord = g.nodes[p[i]]['pos']
+        next_coord = g.nodes[p[i+1]]['pos']
+        marker_node = CircleMarker(coord, 'blue', 5)
+        #m.add_marker(marker_node)
+        if g.edges[p[i], p[i+1]]['type'] == 'Street': 
+            line = Line((coord, next_coord), 'black', 5)
+        else: 
+            line = Line((coord, next_coord), 'red', 5)
+        m.add_line(line)
+        i = i + 1
+    image = m.render()
+    image.save(filename, quality=100)
 
 def exec() -> None: 
     g1 = get_osmnx_graph()
@@ -125,6 +136,10 @@ def exec() -> None:
     g = build_city_graph(g1, g2)
     #show1(g)
     #plot1(g,'filename.png')
-    print(find_path(g1, g, (2.1677043,41.374507), (2.1411482,41.3738284)))
+    src = (2.1677043,41.374507)
+    dst = (2.1411482,41.3738284)
+    s = find_path(g1, g, src, dst)
+    print(s)
+    plot_path(g, s, 'filename.png')
    
 exec()
