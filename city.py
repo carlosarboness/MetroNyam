@@ -1,4 +1,6 @@
+
 from dis import show_code
+from turtle import distance
 import osmnx as ox 
 from attr import attributes
 import pandas as pd
@@ -81,8 +83,9 @@ NodeID = Union[int, str]
 Path = List[NodeID]
 
 def find_closest_node(ox_g: OsmnxGraph, coo: Coord) -> NodeID:
-    node = ox.get_nearest_node(ox_g, coo, method='euclidean')
-    return node[0]
+    node, dis = ox.distance.nearest_nodes(ox_g, coo[0], coo[1], return_dist = True)
+    print(dis)
+    return node 
 
 
 def find_path(ox_g: OsmnxGraph, g: CityGraph, src: Coord, dst: Coord) -> Path:
@@ -124,6 +127,8 @@ def exec() -> None:
     g = build_city_graph(g1, g2)
     #show1(g)
     #plot1(g,'filename.png')
-    print(find_path(g1, g, (2.1677043,41.374507), (2.1411482,41.3738284)))
+    src = (2.1677043,41.374507)
+    dst = (2.1411482,41.3738284)
+    print(find_path(g1, g, src, dst))
    
 exec()
