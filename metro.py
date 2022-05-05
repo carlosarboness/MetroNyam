@@ -130,7 +130,7 @@ def get_att_tram(stat: Station, last_node: Station) -> dict:
     return attributes
 
 
-def get_att_accesses(stat: Station, access: Access) -> dict:
+def get_att_node_access(stat: Station, access: Access) -> dict:
     attributes = {
         'type': 'Access',
         'weight': haversine(stat.get_location(), access.get_location()),
@@ -141,32 +141,41 @@ def get_att_accesses(stat: Station, access: Access) -> dict:
     return attributes
 
 
-def get_att_link(stat1: dict, stat2: dict) -> dict:
+def get_att_edge_access(access: Access) -> dict:
     attributes = {
-        'type': 'Link',
-        'weight': haversine(stat1[1]['pos'], stat2[1]['pos']),
-        'color': '005A97'
+            'type': 'Access',
+            'color': '005A97'  # color blanc
         }
     return attributes
 
 
-def add_nodes_and_edges_from_lines(metro: MetroGraph(), last_line: None, last_node: Optional[Station], lst_stations: Stations, lst_accesses: Accesses) -> None:
+def add_nodes_and_edges_from_lines(metro: MetroGraph(), lst_stations: Stations, lst_accesses: Accesses) -> None:
+    last_line: Optional[str] = None
+    last_node: Optional[Station] = None
     for stat in lst_stations:
-        att1 = get_att_station(stat)
-        metro.add_node((stat.get_name() + '-' + str(stat.get_station_code())), **att1)
+        att = get_att_station(stat)
+        metro.add_node(stat.get_name() + '-' + str(stat.get_station_code()), **att)
         if stat._line[0] != last_line:
             last_line = stat.get_line()[0]
         else:
-            att3 = get_att_tram(stat, last_node)
-            metro.add_edge(last_node.get_name() + '-' + str(last_node.get_station_code()), stat.get_name() + '-' + str(stat.get_station_code()), **att3)
+            att = get_att_tram(stat, last_node)
+            metro.add_edge(last_node.get_name() + '-' + str(last_node.get_station_code()), stat.get_name() + '-' + str(stat.get_station_code()), **att)
         last_node = stat
     for access in lst_accesses: 
-        att2 = get_att_accesses(stat, access)
-        metro.add_node((access.get_name()), **att2)
-        attx = {
-            'type':'link',
+        att = get_att_node_access(stat, access)
+        metro.add_node(access.get_name() + '/' + str(access.get_station_code()), **att)
+        att = get_att_edge_access(access) #no hi ha weight
+        metro.add_edge((access.get_station_name() + '-' + str(access.get_station_code())), (access.get_name()) + '/' + str(access.get_station_code()), **att)
+
+
+def get_att_link(stat1: Station, stat2: Station) -> dict:
+    attributes = {
+        'type': 'Link',
+        'weight': haversine(stat1[1]['pos'], stat2[1]['pos']),
+        'color': '005A97'  # color blanc
         }
-        metro.add_edge((access.get_station_name() + '-' + str(access.get_station_code())), (access.get_name()), **attx)
+    return attributes
+
 
 def add_link_edges(metro: MetroGraph) -> None:
     for stat1 in metro.nodes(data=True):
@@ -181,7 +190,7 @@ def get_metro_graph() -> MetroGraph:
     metro = MetroGraph()
     lst_stations: Stations = read_stations()
     lst_accesses: Accesses = read_accesses()
-    add_nodes_and_edges_from_lines(metro, None, None, lst_stations, lst_accesses)
+    add_nodes_and_edges_from_lines(metro, lst_stations, lst_accesses)
     add_link_edges(metro)
     return metro
 
@@ -214,5 +223,3 @@ def exec() -> None:
         print(edge)
     show(m)
     plot(m, 'filename.png')
-
-exec()
