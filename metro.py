@@ -255,5 +255,3 @@ def exec() -> None:
     print()
     show(m)
     plot(m, 'filename.png')
-
-exec()
