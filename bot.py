@@ -11,7 +11,7 @@ def start(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Hola! T'ajudaré a trobar el millor restaurant per a tú =)")
 
 def help(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Soc un bot amb comandes /start, /help, /author, /find, /info i /guide.")
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Soc un bot amb comandes: \n /start \n /help \n  /author \n  /find \n  /info \n  /guide.")
 
 def author(update, context): 
     context.bot.send_message(chat_id=update.effective_chat.id, text="Carlos Arbonés Sotomayor i Benet Ramió Comas")
@@ -42,7 +42,8 @@ def info(update, context):
     try:
         n = int(context.args[0])
         rest: rs.Restaurant = rest_dict[n]
-        txt = "Nom:  " + rest.get_name() + "\n"
+        txt = "Informació del restaurant"
+        txt += "Nom:  " + rest.get_name() + "\n"
         txt += "Adreça:  " + rest.get_adress()[0] + ", " + rest.get_adress()[1] + "\n"
         txt += "Barri:  " + rest.get_neighborhood() + "\n"
         txt += "Districte:  " + rest.get_district() + "\n"
