@@ -1,11 +1,10 @@
-
 from dis import show_code
 import osmnx as ox 
 from attr import attributes
 import pandas as pd
 import networkx as nx
 from staticmap import *
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Union
 import matplotlib.pyplot as plt
 from haversine import *
 from PIL import Image
@@ -17,7 +16,8 @@ CityGraph = nx.Graph
 
 OsmnxGraph = nx.MultiDiGraph
 
-Coord = (float, float) 
+Coord = (float, float)  # (latitude, longitude)
+
 
 def get_osmnx_graph() -> OsmnxGraph:
     if os.path.exists('filename1.osm'): 
@@ -26,12 +26,15 @@ def get_osmnx_graph() -> OsmnxGraph:
         g = ox.graph_from_place('Barcelona, España', network_type='walk')
         save_osmnx_graph(g, 'filename1.osm')
         return g
-    
+
+
 def save_osmnx_graph(g: OsmnxGraph, filename: str) -> None:
     ox.save_graphml(g, filename)
 
+
 def load_osmnx_graph(filename: str) -> OsmnxGraph: 
     return ox.load_graphml(filename)
+
 
 def add_access_to_closest_streets(g: CityGraph) -> None:
     dist = float('inf')
@@ -46,6 +49,7 @@ def add_access_to_closest_streets(g: CityGraph) -> None:
             g.add_edge(access[0], closest_street, type='Street')
             closest_street = ""
             dist = float('inf')
+
 
 def build_city_graph(g1: OsmnxGraph, g2: MetroGraph) -> CityGraph: 
     g : CityGraph = CityGraph()
@@ -72,10 +76,28 @@ def build_city_graph(g1: OsmnxGraph, g2: MetroGraph) -> CityGraph:
 
     return g
 
+
+NodeID = Union[int, str]
+Path = List[NodeID]
+
+def find_closest_node(ox_g: OsmnxGraph, coo: Coord) -> NodeID:
+    node = ox.get_nearest_node(ox_g, coo, method='euclidean')
+    return node[0]
+
+
+def find_path(ox_g: OsmnxGraph, g: CityGraph, src: Coord, dst: Coord) -> Path:
+    n_src: NodeID = find_closest_node(ox_g, src)
+    n_dst: NodeID = find_closest_node(ox_g, dst)
+    return nx.shortest_path(g, source=n_src, target=n_dst, method='dijkstra')
+
+
+
+
 def show1(g: CityGraph) -> None: 
     nx.draw(g, nx.get_node_attributes(g, 'pos'), node_size=10, with_labels=False)
     plt.show()
-    
+
+
 def plot1(g: CityGraph, filename: str) -> None:
     m = StaticMap(680, 600, url_template='http://a.tile.openstreetmap.org/{z}/{x}/{y}.png')
     for index, node in g.nodes(data=True):
@@ -100,14 +122,8 @@ def exec() -> None:
     g1 = get_osmnx_graph()
     g2 = get_metro_graph()
     g = build_city_graph(g1, g2)
-    show1(g)
+    #show1(g)
     #plot1(g,'filename.png')
-    """
-    for access in g.nodes.data():
-        if access[1]['type'] == 'Access':
-            for street in g.nodes.data():
-                if street[1]['type'] == 'Street':
-                    print(haversine(access[1]['pos'], street[1]['pos']))
-    """
+    print(find_path(g1, g, (2.1677043,41.374507), (2.1411482,41.3738284)))
    
 exec()
