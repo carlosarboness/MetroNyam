@@ -46,7 +46,14 @@ def add_access_to_closest_streets(g: CityGraph) -> None:
                 if street[1]['type'] == 'Street' and d < dist:
                     dist = d
                     closest_street = street[0]
-            g.add_edge(access[0], closest_street, type='Street')
+            att = {
+                'type': 'Street', 
+                'dist': dist, 
+                'speed': 6/(3.6),
+                'weight': dist*(1/6), 
+
+            }
+            g.add_edge(access[0], closest_street, **att)
             closest_street = ""
             dist = float('inf')
 
@@ -65,7 +72,9 @@ def build_city_graph(g1: OsmnxGraph, g2: MetroGraph) -> CityGraph:
         if e1[0] != e1[1]:
             att1 = {
                 'type': 'Street',
-                'length': e1[2]['length']
+                'weight': float(e1[2]['length'])*(1/6),
+                'dist': e1[2]['length'] / 1000,
+                'speed': 6/(3.6),
             }
             g.add_edge(e1[0], e1[1], **att1)
     for e2 in g2.edges.data():
@@ -89,7 +98,7 @@ def find_closest_node(ox_g: OsmnxGraph, coo: Coord) -> NodeID:
 def find_path(ox_g: OsmnxGraph, g: CityGraph, src: Coord, dst: Coord) -> Path:
     n_src: NodeID = find_closest_node(ox_g, src)
     n_dst: NodeID = find_closest_node(ox_g, dst)
-    return nx.shortest_path(g, source=n_src, target=n_dst, method='dijkstra')
+    return nx.shortest_path(g, source=n_src, target=n_dst, weight='weight', method='dijkstra')
 
 
 def show1(g: CityGraph) -> None:
@@ -117,6 +126,10 @@ def plot1(g: CityGraph, filename: str) -> None:
     image.save(filename, quality=100)
 
 
+colors : dict = {'L1': 'red', 'L2': 'purple', 'L3': 'green', 'L4': 'yellow', 'L5': 'blue', 
+                       'L6': 'violet', 'L7': 'brown', 'L8': 'pink', 'L9S': 'orange', 'L9N': 'orange',
+                                'L10N': 'cyan', 'L10S': 'cyan', 'L11': 'lime'}
+
 def plot_path(g: CityGraph, p: Path, src: Coord, dst: Coord, filename: str) -> None:
     m = StaticMap(550, 550, url_template='http://a.tile.openstreetmap.org/{z}/{x}/{y}.png')
     i = 0
@@ -126,17 +139,30 @@ def plot_path(g: CityGraph, p: Path, src: Coord, dst: Coord, filename: str) -> N
         next_coord = g.nodes[p[i+1]]['pos']
         marker_node = CircleMarker(coord, 'blue', 5)
         # m.add_marker(marker_node)
-        if g.edges[p[i], p[i+1]]['type'] == 'Street':
+        if g.edges[p[i], p[i+1]]['type'] != 'tram':
             line = Line((coord, next_coord), 'black', 5)
         else:
-            line = Line((coord, next_coord), 'red', 5)
+            color = colors[g.edges[p[i], p[i+1]]['line']]
+            line = Line((coord, next_coord), color, 5)
         m.add_line(line)
         i = i + 1
     m.add_line(Line((dst, g.nodes[p[-1]]['pos']), 'black', 5))
     image = m.render()
     image.save(filename, quality=100)
 
-
+def time(g: CityGraph, p: Path) -> float: 
+    i = 0
+    distancia_total = 0.0
+    velocitat_mitjana = 0.0
+    while i < len(p)-1:
+        distancia_total = distancia_total + float(g.edges[p[i], p[i+1]]['dist'])
+        velocitat_mitjana = velocitat_mitjana + g.edges[p[i], p[i+1]]['speed']
+        i = i + 1
+    velocitat_mitjana = (velocitat_mitjana/(len(p)-1))
+    distancia_total = distancia_total*1000
+    time = (distancia_total)/(velocitat_mitjana)
+    return time
+    
 def exec() -> None:
     g1 = get_osmnx_graph()
     g2 = get_metro_graph()
@@ -148,6 +174,5 @@ def exec() -> None:
     s = find_path(g1, g, src, dst)
     print(s)
     plot_path(g, s, src, dst,'filename.png')
-
-
-exec()
+    t = time(g, s)
+    print(t)

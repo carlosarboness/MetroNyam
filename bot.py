@@ -12,12 +12,20 @@ import metro as mt
 import city as cy 
 
 
+restaurants = rs.read()
+
+m = mt.get_metro_graph()
+
+g1 = cy.get_osmnx_graph()
+g2 = cy.get_metro_graph()
+g = cy.build_city_graph(g1, g2)
+
 def start(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Hola! T'ajudaré a trobar el millor restaurant per a tú =)")
 
 
 def help(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Soc un bot amb comandes:\n/start\n/help\n/author\n/find\n/info\n/guide.")
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Soc un bot amb comandes:\n/start\n/help\n/author\n/find\n/info\n/guide\n/carrers_bcn\n/linies_metro.")
 
 
 def author(update, context): 
@@ -29,7 +37,6 @@ rest_dict: dict = {}
 
 def find(update, context): 
     try:
-        restaurants = rs.read()
         query = str(context.args[0])
         filter = rs.find(query, restaurants)
         txt = "Tria el teu Restaurant! \n"
@@ -86,11 +93,29 @@ def guide(update, context):
         coord = rest.get_coord()
         dst = (float(coord[1]), float(coord[0]))
         location = context.user_data[key]
-        g1 = cy.get_osmnx_graph()
-        g2 = cy.get_metro_graph()
-        g = cy.build_city_graph(g1, g2)
         s = cy.find_path(g1, g, location, dst)
         cy.plot_path(g, s, location, dst, fitxer)
+        time = int(cy.time(g, s)/60)
+        txt = "El temps estimat que trigaràs és de: " + str(time) + " minuts"
+        context.bot.send_photo(
+            chat_id=update.effective_chat.id, photo=open(fitxer, "rb")
+        )
+        os.remove(fitxer)
+        context.bot.send_message(chat_id=update.effective_chat.id, text=txt)
+        # photo is made, send, and then removed
+    except Exception as e:
+        print(e)
+        context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text='💣')
+
+def carrers_bcn(update, context):
+    try:
+        fitxer = "%d.png" % random.randint(
+            1000000, 9999999
+        )  # generate a random name for the photo
+        
+        cy.plot1(g, fitxer)
         context.bot.send_photo(
             chat_id=update.effective_chat.id, photo=open(fitxer, "rb")
         )
@@ -102,6 +127,23 @@ def guide(update, context):
             chat_id=update.effective_chat.id,
             text='💣')
 
+def linies_metro(update, context):
+    try:
+        fitxer = "%d.png" % random.randint(
+            1000000, 9999999
+        )  # generate a random name for the photo
+        
+        mt.plot(m, fitxer)
+        context.bot.send_photo(
+            chat_id=update.effective_chat.id, photo=open(fitxer, "rb")
+        )
+        os.remove(fitxer)
+        # photo is made, send, and then removed
+    except Exception as e:
+        print(e)
+        context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text='💣')
 
 def your_location(update, context):
     """Stores the location of the user.
@@ -185,6 +227,8 @@ dispatcher.add_handler(CommandHandler('author', author))
 dispatcher.add_handler(CommandHandler('find', find))
 dispatcher.add_handler(CommandHandler('info', info))
 dispatcher.add_handler(CommandHandler('guide', guide))
+dispatcher.add_handler(CommandHandler('carrers_bcn', carrers_bcn))
+dispatcher.add_handler(CommandHandler('linies_metro', linies_metro))
 dispatcher.add_handler(CommandHandler('pos', pos))
 dispatcher.add_handler(CommandHandler('where', where))
 dispatcher.add_handler(MessageHandler(Filters.location, your_location))

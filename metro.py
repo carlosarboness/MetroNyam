@@ -1,3 +1,4 @@
+from os import access
 from attr import attributes
 import pandas as pd
 import networkx as nx
@@ -123,9 +124,11 @@ def get_att_station(stat: Station) -> dict:
 def get_att_tram(stat: Station, last_node: Station) -> dict:
     attributes = {
         'type': 'tram',
-        'weight': haversine(last_node.get_location(), stat.get_location()),
+        'weight': float(haversine(last_node.get_location(), stat.get_location()))*(1/30),
+        'dist': haversine(last_node.get_location(), stat.get_location()),
+        'speed': 26/(3.6), 
         'line': stat.get_line()[0],
-        'color': stat.get_color()
+        'color': colors[stat.get_line()[0]]
     }
     return attributes
 
@@ -139,18 +142,26 @@ def get_att_node_access(access: Access) -> dict:
     return attributes
 
 
-def get_att_edge_access(access: Access) -> dict:
+def get_att_edge_access(access: Access, dist: float) -> dict:
     attributes = {
             'type': 'Access',
-            'color': '005A97'  # color blanc
+            'weight': dist*(1/6),
+            'dist': dist, 
+            'speed': 6/(3.6), 
+            'line': 'Null',
+            'color': 'black' 
         }
     return attributes
 
 
-def get_att_link(stat1: str, stat2: str) -> dict:
+def get_att_link(stat1: str, stat2: str, dist: float) -> dict:
     attributes = {
         'type': 'Link',
-        'color': '005A97'  # color blanc
+        'weight': dist*(1/6),
+        'dist': dist,
+        'speed': 6/(3.6), 
+        'line': 'Null',
+        'color': 'black'  
         }
     return attributes
 
@@ -185,15 +196,18 @@ def add_access_node(metro: MetroGraph, access: Access) -> None:
 
 
 def add_access_edge(metro: MetroGraph, access: Access) -> None:
-    att = get_att_edge_access(access) #no hi ha weight
-    metro.add_edge(access.get_station_name() + '-' + str(access.get_station_code()), get_node_access_name(access), **att)
+    s = access.get_station_name() + '-' + str(access.get_station_code())
+    s1 = get_node_access_name(access)
+    att = get_att_edge_access(access, haversine(metro.nodes[s]['pos'], metro.nodes[s1]['pos'])) #no hi ha weight
+    metro.add_edge(s, s1, **att)
 
 
 def add_link_edge(metro: MetroGraph, lst_station: list) -> None:
     for stat1 in lst_station:
         for stat2 in lst_station:
             if stat1 != stat2:
-                att = get_att_link(stat1, stat2)
+                dist = haversine(metro.nodes[stat1]['pos'], metro.nodes[stat2]['pos'])
+                att = get_att_link(stat1, stat2, dist)
                 metro.add_edge(stat1, stat2, **att)
 
 
@@ -231,15 +245,22 @@ def show(g: MetroGraph) -> None:
     plt.show()
 
 
+colors : dict = {'Null': 'black', 'L1': 'red', 'L2': 'purple', 'L3': 'green', 'L4': 'yellow', 'L5': 'blue', 
+                       'L6': 'violet', 'L7': 'brown', 'L8': 'pink', 'L9S': 'orange', 'L9N': 'orange',
+                                'L10N': 'cyan', 'L10S': 'cyan', 'L11': 'lime', 'FM': 'white'}
+
 def plot(g: MetroGraph, filename: str) -> None:
     m = StaticMap(680, 600, url_template='http://a.tile.openstreetmap.org/{z}/{x}/{y}.png')
     for index, node in g.nodes(data=True):
         coord = (node['pos'])
-        marker_node = CircleMarker(coord, 'red', 5)
+        marker_node = CircleMarker(coord, 'white', 2)
+        marker_outline = CircleMarker(coord, 'black', 4)
+        m.add_marker(marker_outline)
         m.add_marker(marker_node)
     for n1 in g.edges(data=True):
         coord = (g.nodes[n1[0]]['pos'], g.nodes[n1[1]]['pos'])
-        line = Line(coord, 'blue', 2)
+        color = g.edges[n1[0], n1[1]]['color']
+        line = Line(coord, color, 5)
         m.add_line(line)
     image = m.render()
     image.save(filename, quality=100)
@@ -247,11 +268,7 @@ def plot(g: MetroGraph, filename: str) -> None:
 
 def exec() -> None:
     m = get_metro_graph()
-    for node in m.nodes.data():
-        print(node)
-    print()
-    for edge in m.edges.data():
-        print(edge)
-    print()
-    show(m)
+    #show(m)
     plot(m, 'filename.png')
+
+exec()
