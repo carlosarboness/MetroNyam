@@ -34,7 +34,14 @@ def find(update, context):
         filter = rs.find(query, restaurants)
         txt = "Tria el teu Restaurant! \n"
 
-        for i in range(1, 13): 
+        j = 0
+
+        if len(filter) > 12: 
+            j = 13
+        else: 
+            j = len(filter) + 1
+
+        for i in range(1, j): 
             rest = filter[i-1]
             txt += str(i) + ". " + rest.get_name() + "\n"
             rest_dict[i] = rest
@@ -77,7 +84,7 @@ def guide(update, context):
         n = int(context.args[0])
         rest: rs.Restaurant = rest_dict[n]
         coord = rest.get_coord()
-        dst = (float(coord[0]), float(coord[1]))
+        dst = (float(coord[1]), float(coord[0]))
         location = context.user_data[key]
         g1 = cy.get_osmnx_graph()
         g2 = cy.get_metro_graph()
