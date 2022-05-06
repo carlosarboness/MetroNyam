@@ -67,7 +67,33 @@ def info(update, context):
             text='💣')
 
 
-def guide(update, context): ...
+def guide(update, context):
+    key = update.effective_chat.id  # we use the user id as the key of the map
+    try:
+        fitxer = "%d.png" % random.randint(
+            1000000, 9999999
+        )  # generate a random name for the photo
+        
+        n = int(context.args[0])
+        rest: rs.Restaurant = rest_dict[n]
+        coord = rest.get_coord()
+        dst = (float(coord[0]), float(coord[1]))
+        location = context.user_data[key]
+        g1 = cy.get_osmnx_graph()
+        g2 = cy.get_metro_graph()
+        g = cy.build_city_graph(g1, g2)
+        s = cy.find_path(g1, g, location, dst)
+        cy.plot_path(g, s, location, dst, fitxer)
+        context.bot.send_photo(
+            chat_id=update.effective_chat.id, photo=open(fitxer, "rb")
+        )
+        os.remove(fitxer)
+        # photo is made, send, and then removed
+    except Exception as e:
+        print(e)
+        context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text='💣')
 
 
 def your_location(update, context):
@@ -151,6 +177,7 @@ dispatcher.add_handler(CommandHandler('help', help))
 dispatcher.add_handler(CommandHandler('author', author))
 dispatcher.add_handler(CommandHandler('find', find))
 dispatcher.add_handler(CommandHandler('info', info))
+dispatcher.add_handler(CommandHandler('guide', guide))
 dispatcher.add_handler(CommandHandler('pos', pos))
 dispatcher.add_handler(CommandHandler('where', where))
 dispatcher.add_handler(MessageHandler(Filters.location, your_location))
