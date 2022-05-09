@@ -10,7 +10,8 @@ from haversine import *
 from PIL import Image
 import PIL
 import os
-from metro import*
+from metro import *
+import pickle
 
 CityGraph = nx.Graph
 
@@ -20,68 +21,68 @@ Coord = (float, float)  # (latitude, longitude)
 
 
 def get_osmnx_graph() -> OsmnxGraph:
-    if os.path.exists('filename1.osm'):
-        return load_osmnx_graph('filename1.osm')
-    else:
-        g = ox.graph_from_place('Barcelona, España', network_type='walk')
-        save_osmnx_graph(g, 'filename1.osm')
-        return g
+    if not os.path.exists('barcelona.pickle'):
+        bcn_grf: OsmnxGraph = ox.graph_from_place('Barcelona, España', network_type='walk', simplify = True)
+        save_osmnx_graph(bcn_grf, 'barcelona.pickle')
+    return load_osmnx_graph('barcelona.pickle')
 
 
 def save_osmnx_graph(g: OsmnxGraph, filename: str) -> None:
-    ox.save_graphml(g, filename)
+    pickle_out = open(filename,'wb')
+    pickle.dump(g, pickle_out)
+    pickle_out.close()
 
 
 def load_osmnx_graph(filename: str) -> OsmnxGraph:
-    return ox.load_graphml(filename)
+    pickle_in = open(filename,'rb')
+    bcn_grf: OsmnxGraph = pickle.load(pickle_in)
+    pickle_in.close()
+    return bcn_grf
 
 
-def add_access_to_closest_streets(g: CityGraph) -> None:
-    dist = float('inf')
-    closest_street = ""
-    for access in g.nodes.data():
-        if access[1]['type'] == 'Access':
-            for street in g.nodes.data():
-                d = haversine(access[1]['pos'], street[1]['pos'])
-                if street[1]['type'] == 'Street' and d < dist:
-                    dist = d
-                    closest_street = street[0]
-            att = {
-                'type': 'Street', 
-                'dist': dist, 
-                'speed': 6/(3.6),
-                'weight': dist*(1/6), 
-
-            }
-            g.add_edge(access[0], closest_street, **att)
-            closest_street = ""
-            dist = float('inf')
+def access_to_closest_streets(g1: OsmnxGraph, g2: MetroGraph) -> list:
+    access_to_street: list = []
+    for n in g2.nodes.data():
+        if n[1]['type'] == 'Access':
+            street, dist = ox.distance.nearest_nodes(g1, n[1]['pos'][0], n[1]['pos'][1], return_dist = True)
+            access_to_street.append([n[0], street, dist])
+    return access_to_street
 
 
 def build_city_graph(g1: OsmnxGraph, g2: MetroGraph) -> CityGraph:
     g: CityGraph = CityGraph()
-    for n1 in g1.nodes.data():
+
+    access_to_street: list = access_to_closest_streets(g1, g2)
+
+    for n in g1.nodes.data():
         att = {
             'type': 'Street',
-            'pos': (n1[1]['x'], n1[1]['y'])
+            'pos': (n[1]['x'], n[1]['y'])
         }
-        g.add_node(n1[0], **att)
-    for n2 in g2.nodes.data():
-        g.add_node(n2[0], **n2[1])
-    for e1 in g1.edges.data():
-        if e1[0] != e1[1]:
+        g.add_node(n[0], **att)
+    for n in g2.nodes.data():
+        g.add_node(n[0], **n[1])
+    for e in g1.edges.data():
+        if e[0] != e[1]:
             att1 = {
                 'type': 'Street',
-                'weight': float(e1[2]['length'])*(1/6),
-                'dist': e1[2]['length'] / 1000,
+                'weight': float(e[2]['length'])*(1/6),
+                'dist': e[2]['length'] / 1000,
                 'speed': 6/(3.6),
             }
-            g.add_edge(e1[0], e1[1], **att1)
-    for e2 in g2.edges.data():
-        if e2[0] != e2[1]:
-            g.add_edge(e2[0], e2[1], **e2[2])
+            g.add_edge(e[0], e[1], **att1)
+    for e in g2.edges.data():
+        if e[0] != e[1]:
+            g.add_edge(e[0], e[1], **e[2])
+    for e in access_to_street:
+        att = {
+                'type': 'Street', 
+                'dist': e[2], 
+                'speed': 6/(3.6),
+                'weight': e[2]*(1/6), 
+            }
+        g.add_edge(e[0], e[1], **att)
 
-    add_access_to_closest_streets(g)
 
     return g
 
@@ -167,4 +168,7 @@ def exec() -> None:
     g1 = get_osmnx_graph()
     g2 = get_metro_graph()
     g = build_city_graph(g1, g2)
+    show1(g)
+    plot1(g, 'barcelona.png')
 
+exec()
