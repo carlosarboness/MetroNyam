@@ -51,12 +51,9 @@ def author(update, context):
     txt += "• Benet Ramió Comas"
     context.bot.send_message(chat_id=update.effective_chat.id, text=txt)
 
-
-rest_dict: dict = {}
-
-
 def find(update, context): 
     try:
+        rest_dict = {}
         query = ""
         for i in range(0, len(context.args)):
             query += " " + str(context.args[i])
@@ -80,8 +77,13 @@ def find(update, context):
                 rest = filter[i-1]
                 txt += str(i) + ". " + rest.get_name() + "\n"
                 rest_dict[i] = rest
+            for i in range(j, 13): 
+                rest_dict.pop(i)
             
-            context.bot.send_message(chat_id=update.effective_chat.id, text=str(txt))
+            if 'restaurants' not in context.user_data:
+                context.user_data['restaurants'] = txt
+
+            context.bot.send_message(chat_id=update.effective_chat.id, text=context.user_data['restaurants'])
 
     except Exception as e:
         print(e)
