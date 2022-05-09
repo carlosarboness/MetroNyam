@@ -69,36 +69,33 @@ def read() -> Restaurants:
         Restaurants_list.append(r)
     return Restaurants_list
 
-
-def split_compare_string(query: str, string: str) -> Optional[bool]:
-    # if res._name is a string with more than one word, we use de function split to
-    # divide it into a list of strings (with only one word) to be able to compare it
-    for word in string.split():
-        if query == word:
-            return True
-    return None
+#find_near_matches(q, cmp, max_l_dist=1) != []: 
 
 
-def lst_rest(rest: Restaurant) -> List[str]:
-    lst: List[str] = []
-    lst.append(rest.get_name().lower())
-    lst.append(rest.get_adress()[0].lower())
-    lst.append(rest.get_neighborhood().lower())
-    lst.append(rest.get_district().lower())
-    lst.append(rest.get_zip_code().lower())
+def lst_rest(rest: Restaurant) -> str:
+    lst: str = ""
+    lst += rest.get_name().lower() + " "
+    lst += rest.get_adress()[0].lower() + " "
+    lst += rest.get_neighborhood().lower() + " "
+    lst += rest.get_district().lower()
     return lst
 
 
-def coincidence(query: str, rest: Restaurant) -> bool:
-    lst: List[str] = lst_rest(rest)
-    for string in lst:
-        if split_compare_string(query.lower(), string):
+def found(word: str, lst: str) -> bool: 
+    for s in lst.split(): 
+        if find_near_matches(word, s, max_l_dist=1) != []: 
             return True
     return False
-    # ERRORS A CORREGIR:
-    # - No funciona amb el zip_code(8013.0)
 
 
+def coincidence(query: str, rest: Restaurant) -> bool:
+    lst: str = lst_rest(rest)
+    for word in query.split():
+        if not found(word, lst):
+            return False
+    return True
+       
+  
 def find(query: str, restaurants: Restaurants) -> Restaurants:
     restaurants_query: Restaurants = []
     for restaurant in restaurants:
@@ -107,14 +104,13 @@ def find(query: str, restaurants: Restaurants) -> Restaurants:
     return restaurants_query
 
 
+
 def exec() -> None:
     restaurants = read()
-    for rest in restaurants:
-        print(rest._zip_code)
-    print()
-    query = "8013.0"
-    filter = find(query, restaurants)
-    for rest in filter:
-        print(rest._name, rest._coord)
+    filter = find("hambur sants", restaurants)
+    for i in range(1, len(filter)): 
+        print(i, ". ", filter[i-1].get_name(), " --- " ,filter[i-1].get_neighborhood(), " --- " ,filter[i-1].get_district(), " --- " ,filter[i-1].get_adress(),sep = "")
 
-exec()
+
+
+

@@ -15,21 +15,41 @@ import city as cy
 restaurants = rs.read()
 
 m = mt.get_metro_graph()
+mt.plot(m, 'filename.png')
+
 
 g1 = cy.get_osmnx_graph()
 g2 = cy.get_metro_graph()
 g = cy.build_city_graph(g1, g2)
 
 def start(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Hola! T'ajudaré a trobar el millor restaurant per a tú =)")
+    txt = "Hola! Aquest bot t'ajudarà a trobar el restaurant més adient per a tú i "
+    txt += "t'hi portarà fins allà en el menor temps possible. Si necessites informació sobre"
+    txt += "totes les comandes disponibles escriu /help. \n⚠️ És important que enviis la teva ubicació actual"
+    txt +=  " per tal de que et puguem guiar correctament ⚠️ \nQue vagi bé 🧡"
+    context.bot.send_message(chat_id=update.effective_chat.id, text=txt)
 
 
 def help(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Soc un bot amb comandes:\n/start\n/help\n/author\n/find\n/info\n/guide\n/carrers_bcn\n/linies_metro.")
+    txt = "Soc un bot amb les comandes següents: \n\n"
+    txt += "• Amb /start s'inicialitza el bot i podràs començar la conversa\n\n"
+    txt += "• Escriu /author si vols saber els creadors del projecte \n\n"
+    txt += "• Amb /find podràs accedir a una llista de restaurants segons les teves preferències, "
+    txt += "només has d'escriure la comanda i una o diverses sol·licituds al costat. \nExemple: "
+    txt += "/find pizza sants \n\n"
+    txt += "• Si necessites informació sobre qualsevol dels restaurants de la llista, "
+    txt += "escriu /info i el número del restaurant que estiguis interessat. \nExemple: /info 4 \n\n"
+    txt += "• Si ja t'has decidit pel restaurant al que vols anar, escriu /guide i el número del restaurant de la llista \n"
+    txt += "Exemple: /guide 8 \n\n"
+    txt += "• La comanda /linies_metro mostra una imatge de totes les linies de metro disponibles de Barcelona"
+    context.bot.send_message(chat_id=update.effective_chat.id, text=txt)
 
 
 def author(update, context): 
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Carlos Arbonés Sotomayor i Benet Ramió Comas")
+    txt = "Els creadors d'aquest projecte son: \n\n"
+    txt += "• Carlos Arbonés Sotomayor \n"
+    txt += "• Benet Ramió Comas"
+    context.bot.send_message(chat_id=update.effective_chat.id, text=txt)
 
 
 rest_dict: dict = {}
@@ -37,23 +57,31 @@ rest_dict: dict = {}
 
 def find(update, context): 
     try:
-        query = str(context.args[0])
+        query = ""
+        for i in range(0, len(context.args)):
+            query += " " + str(context.args[i])
         filter = rs.find(query, restaurants)
-        txt = "Tria el teu Restaurant! \n"
 
-        j = 0
-
-        if len(filter) > 12: 
-            j = 13
+        if len(filter) == 0: 
+            txt = "Sembla que no hi ha restaurants amb aquestes característiques, intenta "
+            txt += "generalitzar una mica més per tal que de que puguem ajudar-te."
+            context.bot.send_message(chat_id=update.effective_chat.id, text=str(txt))
         else: 
-            j = len(filter) + 1
+            txt = "Tria el teu Restaurant! \n\n"
 
-        for i in range(1, j): 
-            rest = filter[i-1]
-            txt += str(i) + ". " + rest.get_name() + "\n"
-            rest_dict[i] = rest
-        
-        context.bot.send_message(chat_id=update.effective_chat.id, text=str(txt))
+            j = 0
+
+            if len(filter) > 12: 
+                j = 13
+            else: 
+                j = len(filter) + 1
+
+            for i in range(1, j): 
+                rest = filter[i-1]
+                txt += str(i) + ". " + rest.get_name() + "\n"
+                rest_dict[i] = rest
+            
+            context.bot.send_message(chat_id=update.effective_chat.id, text=str(txt))
 
     except Exception as e:
         print(e)
@@ -66,9 +94,9 @@ def info(update, context):
     try:
         n = int(context.args[0])
         rest: rs.Restaurant = rest_dict[n]
-        txt = "Informació del restaurant \n"
+        txt = "Informació del restaurant \n\n"
         txt += "Nom:  " + rest.get_name() + "\n"
-        txt += "Adreça:  " + rest.get_adress()[0] + ", " + rest.get_adress()[1] + "\n"
+        txt += "Adreça:  " + rest.get_adress()[0] + ", nº " + (rest.get_adress()[1])[:-2] + "\n"
         txt += "Barri:  " + rest.get_neighborhood() + "\n"
         txt += "Districte:  " + rest.get_district() + "\n"
         txt += "Telèfon:  " + rest.get_tel()
@@ -96,7 +124,7 @@ def guide(update, context):
         s = cy.find_path(g1, g, location, dst)
         cy.plot_path(g, s, location, dst, fitxer)
         time = int(cy.time(g, s)/60)
-        txt = "El temps estimat que trigaràs és de: " + str(time) + " minuts"
+        txt = "El temps estimat que trigaràs és de: " + str(time) + " minuts. Bon viatge 😁"
         context.bot.send_photo(
             chat_id=update.effective_chat.id, photo=open(fitxer, "rb")
         )
@@ -109,36 +137,11 @@ def guide(update, context):
             chat_id=update.effective_chat.id,
             text='💣')
 
-def carrers_bcn(update, context):
-    try:
-        fitxer = "%d.png" % random.randint(
-            1000000, 9999999
-        )  # generate a random name for the photo
-        
-        cy.plot1(g, fitxer)
-        context.bot.send_photo(
-            chat_id=update.effective_chat.id, photo=open(fitxer, "rb")
-        )
-        os.remove(fitxer)
-        # photo is made, send, and then removed
-    except Exception as e:
-        print(e)
-        context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text='💣')
-
 def linies_metro(update, context):
     try:
-        fitxer = "%d.png" % random.randint(
-            1000000, 9999999
-        )  # generate a random name for the photo
-        
-        mt.plot(m, fitxer)
         context.bot.send_photo(
-            chat_id=update.effective_chat.id, photo=open(fitxer, "rb")
+            chat_id=update.effective_chat.id, photo=open('filename.png', "rb")
         )
-        os.remove(fitxer)
-        # photo is made, send, and then removed
     except Exception as e:
         print(e)
         context.bot.send_message(
@@ -227,7 +230,6 @@ dispatcher.add_handler(CommandHandler('author', author))
 dispatcher.add_handler(CommandHandler('find', find))
 dispatcher.add_handler(CommandHandler('info', info))
 dispatcher.add_handler(CommandHandler('guide', guide))
-dispatcher.add_handler(CommandHandler('carrers_bcn', carrers_bcn))
 dispatcher.add_handler(CommandHandler('linies_metro', linies_metro))
 dispatcher.add_handler(CommandHandler('pos', pos))
 dispatcher.add_handler(CommandHandler('where', where))
