@@ -167,12 +167,4 @@ def exec() -> None:
     g1 = get_osmnx_graph()
     g2 = get_metro_graph()
     g = build_city_graph(g1, g2)
-    # show1(g)
-    # plot1(g,'filename.png')
-    src = (2.1231079101562504, 41.389945964560695)
-    dst = (2.1917724609375004, 41.398960290742316)
-    s = find_path(g1, g, src, dst)
-    print(s)
-    plot_path(g, s, src, dst,'filename.png')
-    t = time(g, s)
-    print(t)
+

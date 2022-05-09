@@ -269,6 +269,5 @@ def plot(g: MetroGraph, filename: str) -> None:
 def exec() -> None:
     m = get_metro_graph()
     #show(m)
-    plot(m, 'filename.png')
+    #plot(m, 'filename.png')
 
-exec()
