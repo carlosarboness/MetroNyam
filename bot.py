@@ -77,13 +77,10 @@ def find(update, context):
                 rest = filter[i-1]
                 txt += str(i) + ". " + rest.get_name() + "\n"
                 rest_dict[i] = rest
-            for i in range(j, 13): 
-                rest_dict.pop(i)
             
-            if 'restaurants' not in context.user_data:
-                context.user_data['restaurants'] = txt
+            context.user_data['restaurants'] = rest_dict
 
-            context.bot.send_message(chat_id=update.effective_chat.id, text=context.user_data['restaurants'])
+            context.bot.send_message(chat_id=update.effective_chat.id, text=txt)
 
     except Exception as e:
         print(e)
@@ -95,7 +92,7 @@ def find(update, context):
 def info(update, context): 
     try:
         n = int(context.args[0])
-        rest: rs.Restaurant = rest_dict[n]
+        rest: rs.Restaurant = context.user_data['restaurants'][n]
         txt = "Informació del restaurant \n\n"
         txt += "Nom:  " + rest.get_name() + "\n"
         txt += "Adreça:  " + rest.get_adress()[0] + ", nº " + (rest.get_adress()[1])[:-2] + "\n"
@@ -119,7 +116,7 @@ def guide(update, context):
         )  # generate a random name for the photo
         
         n = int(context.args[0])
-        rest: rs.Restaurant = rest_dict[n]
+        rest: rs.Restaurant = context.user_data['restaurants'][n]
         coord = rest.get_coord()
         dst = (float(coord[1]), float(coord[0]))
         location = context.user_data[key]

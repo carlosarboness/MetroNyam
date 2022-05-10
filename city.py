@@ -41,11 +41,16 @@ def load_osmnx_graph(filename: str) -> OsmnxGraph:
 
 
 def access_to_closest_streets(g1: OsmnxGraph, g2: MetroGraph) -> list:
-    access_to_street: list = []
+    lst_x = []
+    lst_y = []
+    nodes =[]
     for n in g2.nodes.data():
         if n[1]['type'] == 'Access':
-            street, dist = ox.distance.nearest_nodes(g1, n[1]['pos'][0], n[1]['pos'][1], return_dist = True)
-            access_to_street.append([n[0], street, dist])
+            lst_x.append(n[1]['pos'][0])
+            lst_y.append(n[1]['pos'][1])
+            nodes.append(n[0])
+    street, dist = ox.distance.nearest_nodes(g1, lst_x, lst_y, return_dist = True)
+    access_to_street: list = zip(nodes, street, dist)
     return access_to_street
 
 
@@ -77,9 +82,9 @@ def build_city_graph(g1: OsmnxGraph, g2: MetroGraph) -> CityGraph:
     for e in access_to_street:
         att = {
                 'type': 'Street', 
-                'dist': e[2], 
+                'dist': e[2]/1000, 
                 'speed': 6/(3.6),
-                'weight': e[2]*(1/6), 
+                'weight': e[2]/1000*(1/6), 
             }
         g.add_edge(e[0], e[1], **att)
 
@@ -171,4 +176,3 @@ def exec() -> None:
     show1(g)
     plot1(g, 'barcelona.png')
 
-exec()
