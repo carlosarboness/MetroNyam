@@ -51,7 +51,7 @@ def author(update, context):
     txt += "• Benet Ramió Comas"
     context.bot.send_message(chat_id=update.effective_chat.id, text=txt)
 
-def find(update, context): 
+def find(update, context):
     try:
         rest_dict = {}
         query = ""
@@ -78,7 +78,7 @@ def find(update, context):
                 txt += str(i) + ". " + rest.get_name() + "\n"
                 rest_dict[i] = rest
             
-            context.user_data['restaurants'] = rest_dict
+            context.user_data['rest'] = rest_dict
 
             context.bot.send_message(chat_id=update.effective_chat.id, text=txt)
 
@@ -89,7 +89,7 @@ def find(update, context):
             text='💣')
 
 
-def info(update, context): 
+def info(update, context):
     try:
         n = int(context.args[0])
         rest: rs.Restaurant = context.user_data['restaurants'][n]
@@ -109,17 +109,16 @@ def info(update, context):
 
 
 def guide(update, context):
-    key = update.effective_chat.id  # we use the user id as the key of the map
     try:
         fitxer = "%d.png" % random.randint(
             1000000, 9999999
         )  # generate a random name for the photo
         
         n = int(context.args[0])
-        rest: rs.Restaurant = context.user_data['restaurants'][n]
+        rest: rs.Restaurant = context.user_data['rest'][n]
         coord = rest.get_coord()
         dst = (float(coord[1]), float(coord[0]))
-        location = context.user_data[key]
+        location = context.user_data['loc']
         s = cy.find_path(g1, g, location, dst)
         cy.plot_path(g, s, location, dst, fitxer)
         time = int(cy.time(g, s)/60)
@@ -151,11 +150,9 @@ def your_location(update, context):
     """Stores the location of the user.
     Complexity O(1)."""
 
-    # stores in a map the location of the user using the id
-    # of the user as the key
+    # stores in a map the location of the user
     try:
-        key = update.effective_chat.id
-        context.user_data[key] = [
+        context.user_data['loc'] = [
             update.message.location.longitude,
             update.message.location.latitude,
         ]
@@ -186,8 +183,7 @@ def pos(update, context):
         origin = [coord[1], coord[0]]
         # latitude and longitude are changed because in i_go module,
         # longitude is the first parameter and latitude is the second one
-    key = update.effective_chat.id
-    context.user_data[key] = origin
+    context.user_data['loc'] = origin
 
 
 def where(update, context):
@@ -195,9 +191,8 @@ def where(update, context):
     Precondition: location has to be send previously or function /pos has to be used.
     Complexity O(1)."""
 
-    key = update.effective_chat.id  # we use the user id as the key of the map
     try:
-        location = context.user_data[key]
+        location = context.user_data['loc']
         fitxer = "%d.png" % random.randint(
             1000000, 9999999
         )  # generate a random name for the photo
