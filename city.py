@@ -66,20 +66,19 @@ def access_to_closest_streets(g1: OsmnxGraph, g2: mt.MetroGraph) -> list:
 
 
 def get_attributes_from_osmnx_nodes(n: Node) -> dict: 
-    """ Returns the attributes from the node n, that is a node from the osmnx graph.
-    We save the type of node it is (Street) and the coordinates of the node (pos) """
+    """ Returns the attributes from the node n, that is a node from the osmnx graph. We save the type of
+    node it is (Street) and the coordinates of the node (pos) """
 
     return {'type': 'Street', 
             'pos': (n[1]['x'], n[1]['y'])}
 
 
 def get_attributes_from_osmnx_edges(e) -> dict: 
-    """ Returns the attributes from the edge e, that is an edge from the osmnx graph.
-    We save the type of edge it is (Street), the weight of the edge (is the edge length 
-    - that is the length of the street - times 1/6, that is the inverse of the mean walking 
-    speed  - because we need that as more speed less weight -, the distance of the edge 
-    (street) in metres and also the mean walking speed (6km/h) in metres per second 
-    (we have to divide per 3.6). """
+    """ Returns the attributes from the edge e, that is an edge from the osmnx graph. We save the type of
+    edge it is (Street), the weight of the edge (is the edge length - that is the length of the street - 
+    times 1/6, that is the inverse of the mean walking speed  - because we need that as more speed less
+    weight -, the distance of the edge (street) in metres and also the mean walking speed (6km/h) in metres
+    per second (we have to divide per 3.6). """
 
     return {'type': 'Street', 
             'weight': e[2]['length']*(1/6), 
@@ -88,11 +87,10 @@ def get_attributes_from_osmnx_edges(e) -> dict:
 
 
 def get_attributes_from_acces_to_street(e) -> dict: 
-    """ Returns the attributes from the edge e, that is an edge joins an access e[0] to it
-    closest street e[1]. We save the type (street), the distance between the two nodes (dist)
-    in metres, the mean walking speed (6km/h) in metres per second (we have to divide per 3.6)
-    and the weight of the edge (is the edge length times 1/6, that is the inverse of the mean 
-    walking speed - because we need that as more speed less weight -"""
+    """ Returns the attributes from the edge e, that is an edge joins an access e[0] to it closest street e[1].
+    We save the type (street), the distance between the two nodes (dist) in metres, the mean walking speed
+    (6km/h) in metres per second (we have to divide per 3.6) and the weight of the edge (is the edge length
+    times 1/6, that is the inverse of the mean walking speed - because we need that as more speed less weight - """
 
     return {'type': 'Street', 
             'dist': e[2]/1000, 
@@ -101,14 +99,11 @@ def get_attributes_from_acces_to_street(e) -> dict:
 
 
 def build_city_graph(g1: OsmnxGraph, g2: mt.MetroGraph) -> CityGraph:
-    """ Returns a networkx graph, that is the merged graph of the streets of Barcelona
-    (g1) and the graph of the metro lines (g2). We first create the city graph that is g, 
-    then we create a list joining every  access in the metro to it's closest street in the 
-    g1 graph (and with the distance between them). We iterate the nodes from the g1 graph
-    (streets) and save them with the attributes we selected. We to the same with the edges
-    of the g1 graph (streets), and then the same with the edges of the list that we created
-    in first place"""
-
+    """ Returns a networkx graph, that is the merged graph of the streets of Barcelona (g1) and the graph of 
+    the metro lines (g2). We first create the city graph that is g, then we create a list joining every access 
+    in the metro to it's closest street in the g1 graph (and with the distance between them). We iterate the
+    nodes from the g1 graph (streets) and save them with the attributes we selected. We to the same with the edges
+    of the g1 graph (streets), and then the same with the edges of the list that we created in first place """
 
     g: CityGraph = g2
     access_to_street: list = access_to_closest_streets(g1, g2)
@@ -142,9 +137,9 @@ def find_closest_node(ox_g: OsmnxGraph, coo: Coord) -> NodeID:
     
 
 def find_path(ox_g: OsmnxGraph, g: CityGraph, src: Coord, dst: Coord) -> Path:
-    """ Returns the shortest path (we use the weight of nodes) between the Node n_src, that
-    is the closest node to the src -origin- coordinates, and the Node n_dst, that is the 
-    closest node to the dst -destiny- coordinates """
+    """ Returns the shortest path (we use the weight of nodes) between the Node n_src, that is the closest 
+    node to the src -origin- coordinates, and the Node n_dst, that is the closest node to the dst -destiny- 
+    coordinates """
 
     n_src: NodeID = find_closest_node(ox_g, src)
     n_dst: NodeID = find_closest_node(ox_g, dst)
@@ -152,16 +147,16 @@ def find_path(ox_g: OsmnxGraph, g: CityGraph, src: Coord, dst: Coord) -> Path:
 
 
 def show(g: CityGraph) -> None:
-    """ Shows in an interactive screen the graph (nodes and edges) from g, that is the
-    graph that contains both the graph of the metro and streets of Barcelona """
+    """ Shows in an interactive screen the graph (nodes and edges) from g, that is the graph that contains 
+    both the graph of the metro and streets of Barcelona """
 
     nx.draw(g, nx.get_node_attributes(g, 'pos'), node_size=10, with_labels=False)
     plt.show()
 
 
 def paint_nodes(g: CityGraph, m: StaticMap) -> None: 
-    """ Paints all the nodes from the graph g in the StaticMap m, if the node is a street
-    we paint it in color green, if is a metro node in color red """
+    """ Paints all the nodes from the graph g in the StaticMap m, if the node is a street we paint it in color
+    green, if is a metro node in color red """
 
     for index, node in g.nodes.data():
         coord = (node['pos'])
@@ -173,8 +168,8 @@ def paint_nodes(g: CityGraph, m: StaticMap) -> None:
 
 
 def paint_edges(g: CityGraph, m: StaticMap) -> None: 
-    """ Paints all the edges from the graph g in the StaticMap m, if the edge is a street
-    we paint it in color yellow, if is a metro edge in color blue """
+    """ Paints all the edges from the graph g in the StaticMap m, if the edge is a street we paint it in color
+    yellow, if is a metro edge in color blue """
 
     for n1 in g.edges.data():
         coord = (g.nodes[n1[0]]['pos'], g.nodes[n1[1]]['pos'])
@@ -186,9 +181,8 @@ def paint_edges(g: CityGraph, m: StaticMap) -> None:
 
 
 def plot(g: CityGraph, filename: str) -> None:
-    """ Saves the image of the citygraph in the file -filename-. We iterate all the nodes,
-    and  edges from the graph g and colour them with the image of the barcelona map at the 
-    background """
+    """ Saves the image of the citygraph in the file -filename-. We iterate all the nodes, and  edges from the
+    graph g and colour them with the image of the barcelona map at the background """
 
     url: str =  "http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"
     m: StaticMap = StaticMap(1000, 1000, url_template=url)
@@ -200,15 +194,25 @@ def plot(g: CityGraph, filename: str) -> None:
     image.save(filename, quality=1000)
 
 
-colors : dict = {'L1': 'red', 'L2': 'purple', 'L3': 'green', 'L4': 'yellow', 'L5': 'blue', 
-                       'L6': 'violet', 'L7': 'brown', 'L8': 'pink', 'L9S': 'orange', 'L9N': 'orange',
-                                'L10N': 'cyan', 'L10S': 'cyan', 'L11': 'lime'}
+colors : dict = {'L1': 'red', 
+                 'L2': 'purple',
+                 'L3': 'green', 
+                 'L4': 'yellow', 
+                 'L5': 'blue', 
+                 'L6': 'violet', 
+                 'L7': 'brown', 
+                 'L8': 'pink', 
+                 'L9S': 'orange', 
+                 'L9N': 'orange',
+                 'L10N': 'cyan', 
+                 'L10S': 'cyan', 
+                 'L11': 'lime'}
 
 
 def paint_path(g: CityGraph, m: StaticMap, p: Path) -> None: 
-    """ Paints the edges that connect the nodes from g contained in p in the StaticMap m. 
-    If it's a metro edge we paint it with the color of the metro line we are using, everthing 
-    else we painted in black, simbolizing we are walking"""
+    """ Paints the edges that connect the nodes from g contained in p in the StaticMap m. If it's a metro
+    edge we paint it with the color of the metro line we are using, everthing else we painted in black,
+    simbolizing we are walking"""
 
     for i in range(0, len(p)-1): 
         coord = g.nodes[p[i]]['pos']
@@ -222,9 +226,9 @@ def paint_path(g: CityGraph, m: StaticMap, p: Path) -> None:
 
 
 def plot_path(g: CityGraph, p: Path, src: Coord, dst: Coord, filename: str) -> None:
-    """ Saves in the file <filename> the painted path p that goes from the src coordinates
-    to the dst coordinates. The nodes are from g and the path is painted with an image 
-    of the Barcelona map at the background"""
+    """ Saves in the file <filename> the painted path p that goes from the src coordinates to the dst 
+    coordinates. The nodes are from g and the path is painted with an image of the Barcelona map at 
+    the background"""
 
     url: str = "http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"
     m: StaticMap = StaticMap(1000, 1000, url_template=url)
@@ -238,14 +242,16 @@ def plot_path(g: CityGraph, p: Path, src: Coord, dst: Coord, filename: str) -> N
 
 
 def time(g: CityGraph, p: Path) -> float: 
-    """ Returns the time (in minutes) that going from the first node of path to the last one is 
-    going to take. We sum the time is going to take every edge of the path and return the result"""
+    """ Returns the time (in minutes) that going from the first node of path to the last one is going to 
+    take. We sum the time is going to take every edge of the path and return the result"""
 
     time = 0.0
+
     for i in range(0, len(p)-1): 
         edge_dist = float(g.edges[p[i], p[i+1]]['dist'])*1000
         speed = float(g.edges[p[i], p[i+1]]['speed'])
         time += (edge_dist/speed)
+
     return time/60
     
 
