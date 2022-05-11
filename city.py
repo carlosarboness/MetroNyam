@@ -21,8 +21,8 @@ Coord = (float, float)  # (latitude, longitude)
 
 
 def get_osmnx_graph() -> OsmnxGraph:
-    """ Returns the streets graph of Barcelona city in pickle format, if the graph has
-    already been created it reads the graph from the indicated file """
+    """ Returns the streets graph of Barcelona city in pickle format, if the graph has already been created 
+    it reads the graph from the indicated file """
 
     if not os.path.exists('barcelona.pickle'):
         bcn_grf: OsmnxGraph = ox.graph_from_place('Barcelona, España', network_type='walk', simplify = True)
@@ -39,7 +39,7 @@ def save_osmnx_graph(g: OsmnxGraph, filename: str) -> None:
 
 
 def load_osmnx_graph(filename: str) -> OsmnxGraph:
-    """ Returns the graph written in the file filename in pickle format
+    """ Returns the graph written in the file filename in pickle format.
     Prec: the graph has already been writed in the file """
 
     pickle_in = open(filename,'rb')
