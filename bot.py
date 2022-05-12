@@ -11,9 +11,12 @@ from datetime import datetime, timedelta
 from typing import Optional, List, Tuple, Union
 
 
+# ----------------------------- Initialization ---------------------------------
+
 def init_city() -> None: 
     """ Inicializes the necessaty tools to set up the bot in the correct way """
 
+    # global variables
     global restaurants
     restaurants = rs.read()   # we read the list of all restaurants
 
@@ -27,6 +30,17 @@ def init_city() -> None:
     global city_graph
     city_graph = cy.build_city_graph(bcn_graph, metro_graph)
 
+TOKEN = open('token.txt').read().strip()
+updater = Updater(token=TOKEN, use_context=True)
+dispatcher = updater.dispatcher
+
+updater.start_polling()
+
+updater.idle()
+
+# ------------------------------------------------------------------------------
+
+# ----------------------------- Commands ---------------------------------------
 
 def start(update, context):
     """ Inicializes the bot and sends an introductory message to help the users start using it """
@@ -96,55 +110,6 @@ def author(update, context):
     send_markdown(update, context, info)
 
 
-def get_filtered_restaurants(update, context) -> rs.Restaurants:
-    "Returns a list of restaurants that fulfill the requirements of the query"
-
-    query: str = ""
-
-    for i in range(0, len(context.args)):
-        query += " " + str(context.args[i])
-
-    return rs.find(query, restaurants)
-
-
-def send_not_found_message(update, context) -> None: 
-    """ Sends a message that no restaurants have been found """
-
-    txt = '''
-
-Ups! Sembla que no hi ha restaurants que coincideixen amb aquestes característiques.
-            
-*Intenta generalitzar una mica més per tal que de que puguem ajudar-te*.
-            
-'''
-    send_markdown(update, context, txt)
-
-
-def send_list_restaurants(update, context, filter: rs.Restaurants, selected_restaurants: dict) -> None: 
-    """ Sends a list of 12 restaurants (or less if there are not 12) to the user, with a number
-    in front to refer them and use other functions """
-
-    txt = '''*Tria el teu Restaurant!* 👩🏻‍🍳🍽️ \n \n'''
-
-    if len(filter) > 12: 
-        j = 13
-    else: 
-        j = len(filter) + 1
-
-    for i in range(1, j): 
-        
-        rest = filter[i-1]
-        txt +=  '''〽️ *''' + str(i) + '''.* _''' + rest.get_name().replace("*", "") + '''_ \n'''
-        selected_restaurants[i] = rest
-
-    if 'rest' in context.user_data:
-        del context.user_data['rest']
-        
-    context.user_data['rest'] = selected_restaurants
-
-    send_markdown(update, context, txt)
-
-
 def find(update, context): 
     """ Reads one or more requirements form the user and finds restaurants that 
     suit the conditions, if there are not restaurants that fulfill them, it sends 
@@ -204,38 +169,6 @@ def info(update, context):
         send_markdown(update, context, error)
 
 
-def random_name() -> str: 
-    """ Returns a random name for the photo """
-
-    return "%d.png" % random.randint(1000000, 9999999)  
-
-
-def get_restaurant_location(update, context, n: int) -> Tuple[float, float]:
-    """ Returns the location (coordinates) of the restaurant in position n """
-
-    restaurant: rs.Restaurant = context.user_data['rest'][n]
-    coordinates = restaurant.get_coord()
-    return (float(coordinates[1]), float(coordinates[0]))
-
-
-def save_photo_and_remove_file(update, context, fitxer: str) -> None: 
-    """ Sends to telegram the photo in the file <fitxer> and removes the file """
-
-    context.bot.send_photo(chat_id=update.effective_chat.id, photo=open(fitxer, "rb"))
-    os.remove(fitxer)
-
-
-def calculate_end_time(journey_duration: int) -> str: 
-    """ Returns the time is going to be by adding to the real time the
-    journey duration, the output is a string in format hour:minutes """
-
-    current_time = datetime.now()
-    future_time = current_time + timedelta(minutes=journey_duration)
-    future_time_str = future_time.strftime('%m-%d-%Y %H:%M:%S.%f')
-
-    return future_time_str[10:16]
-
-
 def guide(update, context):
     """ Guides the user to the restaurant they select from the list"""
 
@@ -283,8 +216,7 @@ def linies_metro(update, context):
 
     try:
 
-        fitxer: str = random_name()
-        save_photo_and_remove_file(update, context, fitxer)
+        context.bot.send_photo(chat_id=update.effective_chat.id, photo=open('filename.png', "rb"))
 
     except Exception as e:
 
@@ -296,6 +228,9 @@ def linies_metro(update, context):
 
         send_markdown(update, context, error)
 
+# ------------------------------------------------------------------------------
+
+# ------------------------- Auxiliar functions ----------------------------------
 
 def your_location(update, context):
     """Stores the location of the user. """
@@ -322,10 +257,81 @@ def send_markdown(update, context, info) -> None:
         parse_mode=telegram.ParseMode.MARKDOWN)
 
 
-TOKEN = open('token.txt').read().strip()
-updater = Updater(token=TOKEN, use_context=True)
-dispatcher = updater.dispatcher
+def get_filtered_restaurants(update, context) -> rs.Restaurants:
+    "Returns a list of restaurants that fulfill the requirements of the query"
 
+    query: str = ""
+
+    for i in range(0, len(context.args)):
+        query += " " + str(context.args[i])
+
+    return rs.find(query, restaurants)
+
+
+def send_not_found_message(update, context) -> None: 
+    """ Sends a message that no restaurants have been found """
+
+    txt = '''
+
+Ups! Sembla que no hi ha restaurants que coincideixen amb aquestes característiques.
+            
+*Intenta generalitzar una mica més per tal que de que puguem ajudar-te*.
+            
+'''
+    send_markdown(update, context, txt)
+
+
+def send_list_restaurants(update, context, filter: rs.Restaurants, selected_restaurants: dict) -> None: 
+    """ Sends a list of 12 restaurants (or less if there are not 12) to the user, with a number
+    in front to refer them and use other functions """
+
+    txt = '''*Tria el teu Restaurant!* 👩🏻‍🍳🍽️ \n \n'''
+
+    j = 13 if len(filter) > 12 else len(filter)+1
+
+    for i in range(1, j): 
+        
+        rest = filter[i-1]
+        txt +=  '''〽️ *''' + str(i) + '''.* _''' + rest.get_name().replace("*", "") + '''_ \n'''
+        selected_restaurants[i] = rest
+        
+    context.user_data['rest'] = selected_restaurants
+
+    send_markdown(update, context, txt)
+
+
+def random_name() -> str: 
+    """ Returns a random name for the photo """
+
+    return "%d.png" % random.randint(1000000, 9999999)  
+
+
+def get_restaurant_location(update, context, n: int) -> Tuple[float, float]:
+    """ Returns the location (coordinates) of the restaurant in position n """
+
+    restaurant: rs.Restaurant = context.user_data['rest'][n]
+    coordinates = restaurant.get_coord()
+    return (float(coordinates[1]), float(coordinates[0]))
+
+
+def save_photo_and_remove_file(update, context, fitxer: str) -> None: 
+    """ Sends to telegram the photo in the file <fitxer> and removes the file """
+
+    context.bot.send_photo(chat_id=update.effective_chat.id, photo=open(fitxer, "rb"))
+    os.remove(fitxer)
+
+
+def calculate_end_time(journey_duration: int) -> str: 
+    """ Returns the time is going to be by adding to the real time the
+    journey duration, the output is a string in format hour:minutes """
+
+    current_time = datetime.now()
+    future_time = current_time + timedelta(minutes=journey_duration)
+    future_time_str = future_time.strftime('%m-%d-%Y %H:%M:%S.%f')
+
+    return future_time_str[11:16]
+
+# ------------------------------------------------------------------------------
 
 dispatcher.add_handler(CommandHandler('start', start))
 dispatcher.add_handler(CommandHandler('help', help))
@@ -335,6 +341,3 @@ dispatcher.add_handler(CommandHandler('info', info))
 dispatcher.add_handler(CommandHandler('guide', guide))
 dispatcher.add_handler(CommandHandler('linies_metro', linies_metro))
 dispatcher.add_handler(MessageHandler(Filters.location, your_location))
-
-
-updater.start_polling()
