@@ -15,7 +15,7 @@ def init_city() -> None:
     """ Inicializes the necessaty tools to set up the bot in the correct way """
 
     global restaurants
-    restaurants = rs.read()  # We read the list of all restaurants
+    restaurants = rs.read()   # e read the list of all restaurants
 
     global metro_graph
     metro_graph = mt.get_metro_graph()
@@ -33,7 +33,7 @@ def start(update, context):
 
     init_city()
 
-    user = update.effective_chat.first_name  # We get the user's first name
+    user = update.effective_chat.first_name   # e get the user's first name
 
     salute = ''' 
 
@@ -182,8 +182,8 @@ def info(update, context):
     list of available restaurants """
 
     try:
-        n = int(context.args[0]) #  número del restaurant escollit
-        rest: rs.Restaurant = context.user_data['rest'][n] #  accedim al restaurant escollit
+        n = int(context.args[0])  # número del restaurant escollit
+        rest: rs.Restaurant = context.user_data['rest'][n]  # accedim al restaurant escollit
 
         info = ''' ⚜️ *Informació del restaurant* ⚜️ \n \n'''
         info += '''ℹ️ *Nom:*  ''' + rest.get_name().replace("*", "") + '''\n'''
@@ -242,26 +242,26 @@ def guide(update, context):
     try:
 
         fitxer: str = random_name() 
-        n: int = int(context.args[0]) #  number of the restaurant the user wants to go
+        n: int = int(context.args[0])  # number of the restaurant the user wants to go
 
         ori_coord: cy.Coord = context.user_data['location']
         dst_coord: cy.Coord = get_restaurant_location(update, context, n)
 
         shortest_path: cy.Path = cy.find_path(bcn_graph, city_graph, ori_coord, dst_coord)
-        cy.plot_path(city_graph, shortest_path, ori_coord, dst_coord, fitxer) #  we plot the path in file <fitxer>
+        cy.plot_path(city_graph, shortest_path, ori_coord, dst_coord, fitxer)  # we plot the path in file <fitxer>
 
-        journey_duration: int = int(cy.time(city_graph, shortest_path)) #  time the user is going to spend travelling
-        journey_end_time: str = calculate_end_time(journey_duration) #  calulates the time the user is going to arrive to the restaurant
+        journey_duration: int = int(cy.time(city_graph, shortest_path))  # time the user is going to spend travelling
+        journey_end_time: str = calculate_end_time(journey_duration)  # calulates the time the user is going to arrive to the restaurant
 
         txt = ''' 
         
         🗺 *Informació del trajecte* 🗺
 
-    El temps estimat que trigaràs és _d'aproximadament_ %d minuts. 
+El temps estimat que trigaràs és _d'aproximadament_ %d minuts. 
 
-    Si surts ara arribaràs a les %s 🕐
+Si surts ara arribaràs a les %s 🕐
         
-    *Bon viatge !!* 🚆😁 
+*Bon viatge !!* 🚆😁 
         
         ''' % (journey_duration, journey_end_time) 
 

@@ -17,7 +17,7 @@ CityGraph = nx.Graph
 OsmnxGraph = nx.MultiDiGraph
 
 
-Coord = (float, float)  # (latitude, longitude)
+Coord = (float, float)   # (latitude, longitude)
 
 
 def get_osmnx_graph() -> OsmnxGraph:
@@ -113,7 +113,7 @@ def build_city_graph(g1: OsmnxGraph, g2: mt.MetroGraph) -> CityGraph:
         g.add_node(n[0], **att)
 
     for e in g1.edges.data():
-        if e[0] != e[1]:
+        if e[0] != e[1]:  # comproben que no hi hagin loops als nodes
             att: dict = get_attributes_from_osmnx_edges(e)
             g.add_edge(e[0], e[1], **att)
 
@@ -232,11 +232,11 @@ def plot_path(g: CityGraph, p: Path, src: Coord, dst: Coord, filename: str) -> N
 
     url: str = "http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"
     m: StaticMap = StaticMap(1000, 1000, url_template=url)
-    m.add_line(Line((src, g.nodes[p[0]]['pos']), 'black', 5))  # We join the origin with the first path node
+    m.add_line(Line((src, g.nodes[p[0]]['pos']), 'black', 5))   # join the origin with the first path node
     
     paint_path(g, m, p)
 
-    m.add_line(Line((dst, g.nodes[p[-1]]['pos']), 'black', 5))  # We join the destiny with the last path node
+    m.add_line(Line((dst, g.nodes[p[-1]]['pos']), 'black', 5))   # join the destiny with the last path node
     image = m.render()
     image.save(filename, quality=100)
 
@@ -254,4 +254,3 @@ def time(g: CityGraph, p: Path) -> float:
 
     return time/60
     
-
