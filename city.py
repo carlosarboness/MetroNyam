@@ -232,11 +232,11 @@ def plot_path(g: CityGraph, p: Path, src: Coord, dst: Coord, filename: str) -> N
 
     url: str = "http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"
     m: StaticMap = StaticMap(1000, 1000, url_template=url)
-    m.add_line(Line((src, g.nodes[p[0]]['pos']), 'black', 5))   # join the origin with the first path node
+    m.add_line(Line((src, g.nodes[p[0]]['pos']), 'black', 5))   # we join the origin with the first path node
     
     paint_path(g, m, p)
 
-    m.add_line(Line((dst, g.nodes[p[-1]]['pos']), 'black', 5))   # join the destiny with the last path node
+    m.add_line(Line((dst, g.nodes[p[-1]]['pos']), 'black', 5))   # we join the destiny with the last path node
     image = m.render()
     image.save(filename, quality=100)
 

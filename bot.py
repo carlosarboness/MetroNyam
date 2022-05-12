@@ -15,7 +15,7 @@ def init_city() -> None:
     """ Inicializes the necessaty tools to set up the bot in the correct way """
 
     global restaurants
-    restaurants = rs.read()   # e read the list of all restaurants
+    restaurants = rs.read()   # we read the list of all restaurants
 
     global metro_graph
     metro_graph = mt.get_metro_graph()
@@ -33,7 +33,7 @@ def start(update, context):
 
     init_city()
 
-    user = update.effective_chat.first_name   # e get the user's first name
+    user = update.effective_chat.first_name   # we get the user's first name
 
     salute = ''' 
 
