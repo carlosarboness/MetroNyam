@@ -1,5 +1,4 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-from staticmap import StaticMap, CircleMarker
 import telegram
 import random
 import os
@@ -8,7 +7,7 @@ import metro as mt
 import city as cy 
 import datetime
 from datetime import datetime, timedelta
-from typing import Optional, List, Tuple, Union
+from typing import List, Tuple
 
 
 # ----------------------------- Initialization ---------------------------------
@@ -29,14 +28,6 @@ def init_city() -> None:
 
     global city_graph
     city_graph = cy.build_city_graph(bcn_graph, metro_graph)
-
-TOKEN = open('token.txt').read().strip()
-updater = Updater(token=TOKEN, use_context=True)
-dispatcher = updater.dispatcher
-
-updater.start_polling()
-
-updater.idle()
 
 # ------------------------------------------------------------------------------
 
@@ -333,6 +324,10 @@ def calculate_end_time(journey_duration: int) -> str:
 
 # ------------------------------------------------------------------------------
 
+TOKEN = open('token.txt').read().strip()
+updater = Updater(token=TOKEN, use_context=True)
+dispatcher = updater.dispatcher
+
 dispatcher.add_handler(CommandHandler('start', start))
 dispatcher.add_handler(CommandHandler('help', help))
 dispatcher.add_handler(CommandHandler('author', author))
@@ -341,3 +336,7 @@ dispatcher.add_handler(CommandHandler('info', info))
 dispatcher.add_handler(CommandHandler('guide', guide))
 dispatcher.add_handler(CommandHandler('linies_metro', linies_metro))
 dispatcher.add_handler(MessageHandler(Filters.location, your_location))
+
+updater.start_polling()
+
+updater.idle()
