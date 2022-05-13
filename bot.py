@@ -2,6 +2,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import telegram
 import random
 import os
+import traceback
 import restaurants as rs
 import metro as mt
 import city as cy 
@@ -122,13 +123,7 @@ def find(update, context):
 
     except Exception as e:
 
-        error = ''' 
-        
-        🚨​ *Hi ha hagut un error, torna-ho a provar* 🚨​
-        
-        ''' 
-
-        send_markdown(update, context, error)
+        send_no_especificated_error(update, context) 
 
 
 def info(update, context): 
@@ -138,7 +133,12 @@ def info(update, context):
     list of available restaurants """
 
     try:
+    
         n = int(context.args[0])  # número del restaurant escollit
+
+        if n <= 0 or n > len(context.user_data['rest']): 
+            raise index_out_of_range_error 
+
         rest: rs.Restaurant = context.user_data['rest'][n]  # accedim al restaurant escollit
 
         info = ''' ⚜️ *Informació del restaurant* ⚜️ \n \n'''
@@ -150,14 +150,17 @@ def info(update, context):
         
         send_markdown(update, context, info)
 
-    except Exception as e:
+    except KeyError:  # the user has not used the /find command first
+    
+        send_do_find_first(update, context)
 
-        error = ''' 
-        
-        *Has de triar un número de la llista!!* 🤬
-        
-        ''' 
-        send_markdown(update, context, error)
+    except index_out_of_range_error:  # the user has selected a number out of the list
+
+        send_out_of_list_error(update, context)
+    
+    except Exception:  # general exception, we don't know what happened
+
+        send_no_especificated_error(update, context) 
 
 
 def guide(update, context):
@@ -165,8 +168,14 @@ def guide(update, context):
 
     try:
 
+        if 'rest' not in context.user_data: 
+            raise no_restaurant_list_error
+
         fitxer: str = random_name() 
         n: int = int(context.args[0])  # number of the restaurant the user wants to go
+
+        if n <= 0 or n > len(context.user_data['rest']): 
+            raise index_out_of_range_error 
 
         ori_coord: cy.Coord = context.user_data['location']
         dst_coord: cy.Coord = get_restaurant_location(update, context, n)
@@ -193,14 +202,22 @@ Si surts ara arribaràs a les %s 🕐
         
         send_markdown(update, context, txt)
 
-    except Exception as e:
-        print(e)
-        error = ''' 
+    except KeyError:  # the user has not shared the location
         
-        📍 *Envia primer la teva localització* 📍
-        
-        ''' 
-        send_markdown(update, context, error)
+        send_location_error(update, context)
+    
+    except no_restaurant_list_error: # the user has not used the /find command first
+
+        send_do_find_first(update, context)
+
+    except index_out_of_range_error:  # the user has selected a number out of the list
+
+        send_out_of_list_error(update, context)
+    
+    except Exception:  # general exception, we don't know what happened
+
+        send_no_especificated_error(update, context)
+
 
 def linies_metro(update, context):
     """ Mostra una imatge de les linies del metro disponibles """
@@ -209,15 +226,9 @@ def linies_metro(update, context):
 
         context.bot.send_photo(chat_id=update.effective_chat.id, photo=open('filename.png', "rb"))
 
-    except Exception as e:
+    except Exception:
 
-        error = ''' 
-        
-        🚨​ *Hi ha hagut un error, torna-ho a provar* 🚨​
-        
-        ''' 
-
-        send_markdown(update, context, error)
+        send_no_especificated_error(update, context)
 
 # ------------------------------------------------------------------------------
 
@@ -278,13 +289,13 @@ def send_list_restaurants(update, context, filter: rs.Restaurants, selected_rest
 
     txt = '''*Tria el teu Restaurant!* 👩🏻‍🍳🍽️ \n \n'''
 
-    j = 13 if len(filter) > 12 else len(filter)+1
+    j = 12 if len(filter) > 12 else len(filter)
 
-    for i in range(1, j): 
+    for i in range(0, j): 
         
-        rest = filter[i-1]
-        txt +=  '''〽️ *''' + str(i) + '''.* _''' + rest.get_name().replace("*", "") + '''_ \n'''
-        selected_restaurants[i] = rest
+        rest = filter[i]
+        txt +=  '''〽️ *''' + str(i+1) + '''.* _''' + rest.get_name().replace("*", "") + '''_ \n'''
+        selected_restaurants[i+1] = rest
         
     context.user_data['rest'] = selected_restaurants
 
@@ -321,6 +332,70 @@ def calculate_end_time(journey_duration: int) -> str:
     future_time_str = future_time.strftime('%m-%d-%Y %H:%M:%S.%f')
 
     return future_time_str[11:16]
+
+# ------------------------------------------------------------------------------
+
+# --------------------------- Errors messages ----------------------------------
+
+class index_out_of_range_error(Exception): 
+    """ Raised when the user selects a restaurant that is not in the list """
+
+    pass
+
+
+class no_restaurant_list_error(Exception): 
+    """ Raised when the user useses the commands /info or /guide without having 
+    used the command /find first """
+
+    pass
+
+
+def send_do_find_first(update, context) -> None: 
+
+    error = ''' 
+        
+        Has de utilitzar la comanda */find* primer, si necessites més ajuda utilitza el */help*.
+        
+        ''' 
+
+    send_markdown(update, context, error) 
+
+
+def send_location_error(update, context) -> None: 
+
+    error = ''' 
+        
+        📍 *Envia primer la teva localització* 📍
+
+Si no saps com fer-ho segueix els següents passos: 
+
+📎 -> *Location* -> *Send My Current Location* 
+        
+        ''' 
+
+    send_markdown(update, context, error)
+
+
+def send_out_of_list_error(update, context) -> None: 
+
+    error = ''' 
+        
+        *Has de triar un número de la llista!!* 🤬
+        
+        ''' 
+
+    send_markdown(update, context, error)
+
+
+def send_no_especificated_error(update, context) -> None: 
+
+    error = ''' 
+        
+        🚨​ *Hi ha hagut un error, torna-ho a provar* 🚨​
+        
+        ''' 
+
+    send_markdown(update, context, error)
 
 # ------------------------------------------------------------------------------
 
