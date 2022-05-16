@@ -52,6 +52,8 @@ Si necessites informació sobre totes les comandes disponibles escriu */help*.
 
 ⚠️ *És important que enviis la teva ubicació actual per tal de que et puguem guiar correctament* ⚠️
 
+*Recorda que aquest bot està pensat per si estàs acutalment a la ciutat de Barcelona, sinó puc començar a fer coses rares!*
+
 Que vagi bé 🧡
 
 ''' % (user)

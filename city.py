@@ -3,7 +3,7 @@ import os
 from typing_extensions import TypeAlias
 import networkx as nx
 from staticmap import *
-from typing import List, Type, Union, Tuple, TypeAlias
+from typing import List, Type, Union, Tuple
 import matplotlib.pyplot as plt
 from haversine import *
 import metro as mt
@@ -76,7 +76,7 @@ def get_attributes_from_osmnx_nodes(n: Tuple[str, dict]) -> dict:
             'pos': (n[1]['x'], n[1]['y'])}
 
 
-def get_attributes_from_osmnx_edges(e: List[str, str, dict]) -> dict:
+def get_attributes_from_osmnx_edges(e) -> dict:
     """ Returns the attributes from the edge e, that is an edge from the osmnx
     graph. We save the type of edge it is (Street), the weight of the edge
     (is the edge length - that is the length of the street - times 1/6, that is
@@ -91,7 +91,7 @@ def get_attributes_from_osmnx_edges(e: List[str, str, dict]) -> dict:
             'speed': 6/(3.6)}
 
 
-def get_attributes_from_acces_to_street(e: List[str, str, dict]) -> dict:
+def get_attributes_from_acces_to_street(e) -> dict:
     """ Returns the attributes from the edge e, that is an edge joins an access
     e[0] to it closest street e[1]. We save the type (street), the distance
     between the two nodes (dist) in metres, the mean walking speed (6km/h) in
@@ -205,21 +205,6 @@ def plot(g: CityGraph, filename: str) -> None:
 
     image = m.render()
     image.save(filename, quality=1000)
-
-
-colors: dict = {'L1': 'red',
-                'L2': 'purple',
-                'L3': 'green',
-                'L4': 'yellow',
-                'L5': 'blue',
-                'L6': 'violet',
-                'L7': 'brown',
-                'L8': 'pink',
-                'L9S': 'orange',
-                'L9N': 'orange',
-                'L10N': 'cyan',
-                'L10S': 'cyan',
-                'L11': 'lime'}
 
 
 def paint_path(g: CityGraph, m: StaticMap, p: Path) -> None:
