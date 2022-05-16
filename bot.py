@@ -364,10 +364,12 @@ class no_restaurant_list_error(Exception):
 
 
 def send_do_find_first(update, context) -> None:
+    """ Sends a message to the user with some help when we detect that their not 
+    using the bot in a correct way """
 
     error = '''
 
-        Has de utilitzar la comanda */find* primer, si necessites més ajuda utilitza el */help*.
+        🔎 *Has de utilitzar la comanda */find* primer, si necessites més ajuda utilitza el /help* 🔍
 
         '''
 
@@ -375,6 +377,8 @@ def send_do_find_first(update, context) -> None:
 
 
 def send_location_error(update, context) -> None:
+    """ Sends a message to the user asking to send their current location, and 
+    some help in case they don't know how to do it """
 
     error = '''
 
@@ -390,6 +394,8 @@ Si no saps com fer-ho segueix els següents passos:
 
 
 def send_out_of_list_error(update, context) -> None:
+    """ Sends a message to the user with an indication the user to select a 
+    restaurant in the list """
 
     error = '''
 
@@ -401,6 +407,8 @@ def send_out_of_list_error(update, context) -> None:
 
 
 def send_no_especificated_error(update, context) -> None:
+    """ Sends a message to the user when there is en error in the bot and 
+    we don't know the source of the error (this should not happen) """
 
     error = '''
 
