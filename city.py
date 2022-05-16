@@ -3,7 +3,7 @@ import os
 from typing_extensions import TypeAlias
 import networkx as nx
 from staticmap import *
-from typing import List, Type, Union, Tuple
+from typing import List, Type, Union, Tuple, Optional
 import matplotlib.pyplot as plt
 from haversine import *
 import metro as mt
@@ -76,7 +76,7 @@ def get_attributes_from_osmnx_nodes(n: Tuple[str, dict]) -> dict:
             'pos': (n[1]['x'], n[1]['y'])}
 
 
-def get_attributes_from_osmnx_edges(e) -> dict:
+def get_attributes_from_osmnx_edges(e: Tuple[str, str, dict]) -> dict:
     """ Returns the attributes from the edge e, that is an edge from the osmnx
     graph. We save the type of edge it is (Street), the weight of the edge
     (is the edge length - that is the length of the street - times 1/6, that is
@@ -91,7 +91,7 @@ def get_attributes_from_osmnx_edges(e) -> dict:
             'speed': 6/(3.6)}
 
 
-def get_attributes_from_acces_to_street(e) -> dict:
+def get_attributes_from_acces_to_street(e: Tuple[str, str, dict]) -> dict:
     """ Returns the attributes from the edge e, that is an edge joins an access
     e[0] to it closest street e[1]. We save the type (street), the distance
     between the two nodes (dist) in metres, the mean walking speed (6km/h) in
