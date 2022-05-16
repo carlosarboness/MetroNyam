@@ -5,19 +5,19 @@ import pandas as pd
 from fuzzysearch import find_near_matches
 
 
-location = Tuple[float, float]
+location = Tuple[float, float]  # (latitude, longitude)
 
 
 @dataclass
 class Restaurant:
 
-    _name: str  # name
-    _adress: Tuple[str, str]  # (adress_road_name, adresses_strat_street_number)
-    _neighborhood: str  # adresses_neighborhood_name
-    _district: str  # adresses_district_name
-    _tel: str  # values_value
-    _info: str  # secondary_filters_name
-    _coord: location  # (geo_epgs_4326_x, geo_epgs_4326_y)
+    _name: str  # restaurant's name
+    _adress: Tuple[str, str]  # restaurant's street name and number
+    _neighborhood: str  # restaurnat's neighborhood name
+    _district: str  # restaurnat's district name
+    _tel: str  # restaurant's phone number
+    _info: str  # restaurant's type
+    _coord: location  # resturant's location
 
     def get_name(self) -> str:
         return self._name
@@ -49,7 +49,8 @@ def read() -> Restaurants:
     Prec: the file 'restaurants.csv' must be downloanded"""
 
     df = pd.read_csv('restaurants.csv')
-    df = df.astype(str)  # we pass the df readed into a str to get the correct format of the data
+    # we pass the df readed into a str to get the correct format of the data
+    df = df.astype(str)
 
     Rest_lst: Restaurants = []
 
@@ -89,7 +90,7 @@ def found(word_query: str, str_rest: str) -> bool:
 def coincidence(query: str, rest: Restaurant) -> bool:
     """Returns if the rest satisfies the query"""
 
-    # we create a string with all the relevant information of the rest concatenated
+    # we create a string with the relevant information of the rest concatenated
     str_rest: str = string_rest(rest)
 
     # we check if every word in the query matches with the rest
