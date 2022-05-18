@@ -16,10 +16,38 @@ This project is divided in four parts:
 * `bot.py` : Contains all the code related to the Telegram bot and uses the city and restaurant modules. Its task is to react to user commands in order to guide them.
 
 
-
 ### Prerequisites
 
-What things you need to install the software and how to install them
+You will need to have `python3` and `pip3` updated. Check it with:
+```
+pip3 install --upgrade pip3
+pip3 install --upgrade python3
+```
+If you are using macOS you will need to install the package manager [brew](https://brew.sh) in your environment using:
+```
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+```
+
+To use the bot you will need a `Telegram` account as well as the `Telegram` app. It is available in [Play Store](https://play.google.com/store/apps/details?id=org.telegram.messenger&hl=ca), [App Store](https://apps.apple.com/es/app/telegram-messenger/id686449807) or in [Telegram's website](https://telegram.org).
+
+### Installing
+
+The packages needed for this bot are:
+* **networkx** to manipulate graphs.
+* **osmnx** to obtain city graphs (Barcelona in this case).
+* **haversine** for calculating distances between coordinates.
+* **staticmap** to draw and plot maps.
+* **python-telegram-bot** to create and interact with a Telegram bot.
+* **pandas** to read CSV files.
+* **fuzzysearch** to do diffuse searches.
+
+
+To install all the packages used in this bot you can execute the following command:
+```
+pip3 install -r requirements.txt
+```
+
+If you have problems with it you can install the packages one by one with `pip3 install` followed by the package name.
 
 ```
 Give examples
