@@ -23,10 +23,6 @@ You will need to have `python3` and `pip3` updated. Check it with:
 pip3 install --upgrade pip3
 pip3 install --upgrade python3
 ```
-If you are using macOS you will need to install the package manager [brew](https://brew.sh) in your environment using:
-```
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-```
 
 To use the bot you will need a `Telegram` account as well as the `Telegram` app. It is available in [Play Store](https://play.google.com/store/apps/details?id=org.telegram.messenger&hl=ca), [App Store](https://apps.apple.com/es/app/telegram-messenger/id686449807) or in [Telegram's website](https://telegram.org).
 
