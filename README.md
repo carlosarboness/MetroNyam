@@ -36,6 +36,7 @@ The packages needed for this bot are:
 * `python-telegram-bot` to create and interact with a Telegram bot.
 * `pandas` to read CSV files.
 * `fuzzysearch` to do diffuse searches.
+* `typing_extensions` to define a new name for a type.
 
 
 To install all the packages used in this bot you can execute the following command:
