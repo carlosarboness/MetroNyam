@@ -5,7 +5,10 @@ Choose your restaurant and go by metro!
 
 This project is divided in four parts: 
 
-* 'restaurant.py' : Contains all the code related to obtaining the list of restaurants and related searches.
+* `restaurant.py` : Contains all the code related to obtaining the list of restaurants and related searches.
+* `metro.py` : Contains all the code related to the construction of the subway graph.
+* `city.py` : Contains all the code related to the construction of the city graph and the search for routes between points in the city.
+* `bot.py` : Contains all the code related to the Telegram bot and uses the city and restaurant modules. Its task is to react to user commands in order to guide them.
 
 ### Prerequisites
 
