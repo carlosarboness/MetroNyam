@@ -26,6 +26,8 @@ pip3 install --upgrade python3
 
 To use the bot you will need a `Telegram` account as well as the `Telegram` app. It is available in [Play Store](https://play.google.com/store/apps/details?id=org.telegram.messenger&hl=ca), [App Store](https://apps.apple.com/es/app/telegram-messenger/id686449807) or in [Telegram's website](https://telegram.org).
 
+In addition to this, in order to make a good usage of the project, you will need to create your own bot and save your acess token in a file called `token.txt`. To do that follow the **Requirements** steps in [Lliçons de bots de Telegram](https://xn--llions-yua.jutge.org/python/telegram.html)
+
 ### Installing
 
 The packages needed for this bot are:
@@ -49,7 +51,12 @@ If you have problems with it you can install the packages one by one with `pip3 
 
 ## Usage
 
-Explain how to run the automated tests for this system
+**Note**: this bot is configured to work with _**Barcelona**_ street network by default, therefore, interaction with the user is made in _Catalan language_.
+To use the bot you must first execute bot.py in the terminal using python3:
+```
+python3 bot.py
+```
+
 
 ### Break down into end to end tests
 
