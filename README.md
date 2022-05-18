@@ -1,11 +1,11 @@
 # MetroNyam
-Projecte AP2 Benet i Carlos
-
-In this project we have created a telegram bot that guides you to your favorite restaurant.
+Choose your restaurant and go by metro!
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+This project is divided in four parts: 
+
+* 'restaurant.py' : Contains all the code related to obtaining the list of restaurants and related searches.
 
 ### Prerequisites
 
