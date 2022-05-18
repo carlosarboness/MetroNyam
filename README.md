@@ -46,25 +46,8 @@ pip3 install -r requirements.txt
 
 If you have problems with it you can install the packages one by one with `pip3 install` followed by the package name.
 
-### Installing
 
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
-
-```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo
-
-## Running the tests
+## Usage
 
 Explain how to run the automated tests for this system
 
