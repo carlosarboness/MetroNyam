@@ -57,9 +57,9 @@ To use the bot you must first open your telegram account and select the chat of 
 python3 bot.py
 ```
 
-Now you can start using the MetroNyam bot! 
-Type `/start` in the chat and the bot will present itself and offer you some help on usage. 
-To use the bot, you must share its location so it can guide you properly. If the location is not shared, a command will report an error.
+Now you are ready to use the MetroNyam bot!
+
+Type `/start` in the chat and the bot will present itself and offer you some help on usage. To use the bot, you must share its location so it can guide you properly. If the location is not shared, a command will report an error.
 
 These are commands that the bot has:
 * `/start`: starts the conversation.
