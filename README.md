@@ -33,13 +33,13 @@ To use the bot you will need a `Telegram` account as well as the `Telegram` app.
 ### Installing
 
 The packages needed for this bot are:
-* **networkx** to manipulate graphs.
-* **osmnx** to obtain city graphs (Barcelona in this case).
-* **haversine** for calculating distances between coordinates.
-* **staticmap** to draw and plot maps.
-* **python-telegram-bot** to create and interact with a Telegram bot.
-* **pandas** to read CSV files.
-* **fuzzysearch** to do diffuse searches.
+* `networkx` to manipulate graphs.
+* `osmnx` to obtain city graphs (Barcelona in this case).
+* `haversine` for calculating distances between coordinates.
+* `staticmap` to draw and plot maps.
+* `python-telegram-bot` to create and interact with a Telegram bot.
+* `pandas` to read CSV files.
+* `fuzzysearch` to do diffuse searches.
 
 
 To install all the packages used in this bot you can execute the following command:
@@ -48,10 +48,6 @@ pip3 install -r requirements.txt
 ```
 
 If you have problems with it you can install the packages one by one with `pip3 install` followed by the package name.
-
-```
-Give examples
-```
 
 ### Installing
 
