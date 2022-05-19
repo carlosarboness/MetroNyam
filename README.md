@@ -79,12 +79,12 @@ These are commands that the bot has:
 Great! Now let's see a real example.
 
 <p float="left">
-  <img src="https://github.com/carlosarboness/MetroNyam/blob/main/tutorial1.png" width=40% height=40%> 
-  <img src="https://github.com/carlosarboness/MetroNyam/blob/main/tutorial2.png" width=40% height=40%>
+  <img src="https://github.com/carlosarboness/MetroNyam/blob/main/tutorial1.png" width=20% height=20%> 
+  <img src="https://github.com/carlosarboness/MetroNyam/blob/main/tutorial2.png" width=20% height=20%>
 </p>
 <p float="left">
-  <img src="https://github.com/carlosarboness/MetroNyam/blob/main/tutorial3.png" width=40% height=40%> 
-  <img src="https://github.com/carlosarboness/MetroNyam/blob/main/tutorial4.png" width=40% height=40%>
+  <img src="https://github.com/carlosarboness/MetroNyam/blob/main/tutorial3.png" width=20% height=20%> 
+  <img src="https://github.com/carlosarboness/MetroNyam/blob/main/tutorial4.png" width=20% height=20%>
  </p>
 
 
