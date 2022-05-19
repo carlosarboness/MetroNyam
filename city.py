@@ -88,7 +88,8 @@ def get_attributes_from_osmnx_edges(e: Tuple[str, str, dict]) -> dict:
     return {'type': 'Street',
             'weight': e[2]['length']*(1/6),
             'dist': e[2]['length'] / 1000,
-            'speed': 6/(3.6)}
+            'speed': 6/(3.6),
+            'color': 'black'}
 
 
 def get_attributes_from_acces_to_street(e: Tuple[str, str, dict]) -> dict:
@@ -102,7 +103,8 @@ def get_attributes_from_acces_to_street(e: Tuple[str, str, dict]) -> dict:
     return {'type': 'Street',
             'dist': e[2]/1000,
             'speed': 6/(3.6),
-            'weight': e[2]/1000*(1/6)}
+            'weight': e[2]/1000*(1/6),
+            'color': 'black'}
 
 
 def build_city_graph(g1: OsmnxGraph, g2: mt.MetroGraph) -> CityGraph:
@@ -214,13 +216,11 @@ def paint_path(g: CityGraph, m: StaticMap, p: Path) -> None:
     walking"""
 
     for i in range(0, len(p)-1):
+
         coord = g.nodes[p[i]]['pos']
         next_coord = g.nodes[p[i+1]]['pos']
-        if g.edges[p[i], p[i+1]]['type'] != 'tram':
-            line = Line((coord, next_coord), 'black', 5)
-        else:
-            color = g.edges[p[i], p[i+1]]['color']
-            line = Line((coord, next_coord), color, 5)
+        color = g.edges[p[i], p[i+1]]['color']
+        line = Line((coord, next_coord), color, 5)
         m.add_line(line)
 
 
@@ -262,4 +262,4 @@ def time(g: CityGraph, p: Path) -> float:
         time += (edge_dist/speed)
 
     return time/60
-
+    
