@@ -115,69 +115,53 @@ def read_accesses() -> Accesses:
 def get_att_station(stat: Station) -> dict:
     """Retruns a map of the attrubutes of the node stat"""
 
-    attributes: dict = {
-        'type': 'Station',
-        'name': stat.get_name(),
-        'line': stat.get_line(),
-        'pos': stat.get_location(),
-        'color': stat.get_color(),
-    }
-    return attributes
+    return {'type': 'Station',
+            'name': stat.get_name(),
+            'line': stat.get_line(),
+            'pos': stat.get_location(),
+            'color': stat.get_color()}
 
 
 def get_att_tram(stat1: Station, stat2: Station) -> dict:
     """Returns a map of the attributes of the edge between
     the stations stat1 and stat2"""
 
-    attributes: dict = {
-        'type': 'tram',
-        'weight': float(haversine(stat2.get_location(), stat1.get_location()))*(1/30),
-        'dist': haversine(stat2.get_location(), stat1.get_location()),
-        'speed': 26/(3.6),
-        'line': stat1.get_line(),
-        'color': stat1.get_color()
-    }
-    return attributes
+    return {'type': 'tram',
+            'dist': haversine(stat2.get_location(), stat1.get_location()),  # distance in meters
+            'speed': 26/(3.6),  # mean metro speed (26km/h) in m/s
+            'weight': float(haversine(stat2.get_location(), stat1.get_location()))*(1/26),  # distance divided by speed
+            'line': stat1.get_line(),
+            'color': stat1.get_color()}
 
 
 def get_att_node_access(access: Access) -> dict:
     """Returns a map of the attributes of the node access"""
 
-    attributes: dict = {
-        'type': 'Access',
-        'pos': access.get_location()
-    }
-    return attributes
+    return {'type': 'Access',
+            'pos': access.get_location()}
 
 
 def get_att_edge_access(access: Access, dist: float) -> dict:
     """Returns a map of the attributes of the edge between an access
     and its station given the access and the distance to its station"""
 
-    attributes: dict = {
-            'type': 'Access',
-            'weight': dist*(1/6),
-            'dist': dist,
-            'speed': 6/(3.6),
-            'line': 'Null',
-            'color': 'black'  # the color black means that it is walking
-        }
-    return attributes
+    return {'type': 'Access',
+            'dist': dist,  # distance in meters
+            'speed': 6/(3.6),  # mean walking speed (6km/h) in m/s
+            'weight': dist*(1/6),  # distance divided by speed
+            'color': 'black'}  # the color black means that it is walking
+        
 
 
 def get_att_link(dist: float) -> dict:
     """Returns a map of the attributes of a link edge between two
     station given the distance between them"""
 
-    attributes: dict = {
-        'type': 'Link',
-        'weight': dist*(1/6),
-        'dist': dist,
-        'speed': 6/(3.6),
-        'line': 'Null',
-        'color': 'black'  # the color black means that it is walking
-    }
-    return attributes
+    return {'type': 'Link',
+            'dist': dist,  # distance in meters
+            'speed': 6/(3.6),  # mean walking speed (6km/h) in m/s
+            'weight': dist*(1/6),  # distance divided by speed
+            'color': 'black'}  # the color black means that it is walking
 
 
 def get_node_station_name(stat: Station) -> str:
@@ -308,16 +292,15 @@ def get_metro_graph() -> MetroGraph:
 
 
 def show(g: MetroGraph) -> None:
-    """ Shows in an interactive screen the graph (nodes and edges) from g,
-    that is the graph that contains the graph of the metro of Barcelona """
+    """Shows in an interactive screen the MetroGraph (nodes and edges) g"""
 
     nx.draw(g, nx.get_node_attributes(g, 'pos'), node_size=10, node_color="red", edge_color="blue", with_labels=False)
     plt.show()
 
 
 def paint_nodes(g: MetroGraph, m: StaticMap) -> None:
-    """ Paints all the nodes from the graph g in the
-    StaticMap m with the color red """
+    """Paints all the nodes from the graph g in the
+    StaticMap m with the color red"""
 
     for index, node in g.nodes(data=True):
         coord = (node['pos'])
@@ -326,8 +309,8 @@ def paint_nodes(g: MetroGraph, m: StaticMap) -> None:
 
 
 def paint_edges(g: MetroGraph, m: StaticMap) -> None:
-    """ Paints all the edges from the graph g in the
-    StaticMap m with the color blue """
+    """Paints all the edges from the graph g in the
+    StaticMap m with the color blue"""
 
     for n1 in g.edges(data=True):
         coord = (g.nodes[n1[0]]['pos'], g.nodes[n1[1]]['pos'])
@@ -337,10 +320,9 @@ def paint_edges(g: MetroGraph, m: StaticMap) -> None:
 
 
 def plot(g: MetroGraph, filename: str) -> None:
-    """ Saves the image of the metrograph in the file -filename-.
-    We iterate all the nodes, and  edges from the graph g and
-    colour them with the image of the barcelona map at the background """
+    """Saves the image of the CityGraph in the file <filename>"""
 
+    # we get the openstreetmap to be the background
     url: str = 'http://a.tile.openstreetmap.org/{z}/{x}/{y}.png'
     m: StaticMap = StaticMap(1000, 1000, url_template=url)
 
@@ -349,3 +331,4 @@ def plot(g: MetroGraph, filename: str) -> None:
 
     image = m.render()
     image.save(filename, quality=1000)
+    
