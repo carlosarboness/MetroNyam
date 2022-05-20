@@ -1,36 +1,23 @@
+from dataclasses import dataclass
+from typing import List, Tuple
+from typing_extensions import TypeAlias
 import pandas as pd
-from staticmap import StaticMap, CircleMarker
-from typing import Optional, List, Tuple
 from fuzzysearch import find_near_matches
 
 
-location = Tuple[str, str]
+location = Tuple[float, float]  # (latitude, longitude)
 
 
+@dataclass
 class Restaurant:
 
-    _id: str  # resigter_id
-    _name: str  # name
-    _adress: Tuple[str, str]  # [adress_road_name, adresses_strat_street_number]
-    _neighborhood: str  # adresses_neighborhood_name
-    _district: str  # adresses_district_name
-    _zip_code: str  # adresses_zip_code
-    _tel: str  # values_value
-    _coord: location  # [geo_epgs_4326_x, geo_epgs_4326_y]
-
-    def __init__(self, id: str, name: str, adress: Tuple[str, str], neighborhood: str, district: str, zip_code: str, tel: str, coord: location) -> None:
-
-        self._id = id
-        self._name = name
-        self._adress = adress
-        self._neighborhood = neighborhood
-        self._district = district
-        self._zip_code = zip_code
-        self._tel = tel
-        self._coord = coord
-
-    def get_id(self) -> str:
-        return self._id
+    _name: str  # restaurant's name
+    _adress: Tuple[str, str]  # restaurant's street name and number
+    _neighborhood: str  # restaurnat's neighborhood name
+    _district: str  # restaurnat's district name
+    _tel: str  # restaurant's phone number
+    _info: str  # restaurant's type
+    _coord: location  # resturant's location
 
     def get_name(self) -> str:
         return self._name
@@ -44,77 +31,83 @@ class Restaurant:
     def get_district(self) -> str:
         return self._district
 
-    def get_zip_code(self) -> str:
-        return self._zip_code
-
     def get_tel(self) -> str:
         return self._tel
+
+    def get_info(self) -> str:
+        return self._info
 
     def get_coord(self) -> location:
         return self._coord
 
 
-Restaurants = List[Restaurant]
+Restaurants: TypeAlias = List[Restaurant]
 
 
 def read() -> Restaurants:
-    # url = 'https://raw.githubusercontent.com/jordi-petit/ap2-metro-nyam-2022/main/data/restaurants.csv'
-    df = pd.read_csv('rest.csv')
-    df = df.astype(str)  # we pass the df readed into a str
-    Restaurants_list: List[Restaurant] = []
+    """Reads and returns the list of restaurants
+    Prec: the file 'restaurants.csv' must be downloanded"""
+
+    df = pd.read_csv('restaurants.csv')
+    # we pass the df readed into a str to get the correct format of the data
+    df = df.astype(str)
+
+    Rest_lst: Restaurants = []
+
     for index, row in df.iterrows():
-        r = Restaurant(row['register_id'], row['name'], (row['addresses_road_name'], row['addresses_start_street_number']),
-                        row['addresses_neighborhood_name'], row['addresses_district_name'], row['addresses_zip_code'], row['values_value'],
-                        (row['geo_epgs_4326_x'], row['geo_epgs_4326_y']))
-        Restaurants_list.append(r)
-    return Restaurants_list
+        rest = Restaurant(row['name'], (row['addresses_road_name'], row['addresses_start_street_number'][:-2]),
+                row['addresses_neighborhood_name'], row['addresses_district_name'], row['values_value'],
+                row['secondary_filters_name'], (float(row['geo_epgs_4326_x']), float(row['geo_epgs_4326_y'])))
+        Rest_lst.append(rest)
+
+    return Rest_lst
 
 
-def split_compare_string(query: str, string: str) -> Optional[bool]:
-    # if res._name is a string with more than one word, we use de function split to
-    # divide it into a list of strings (with only one word) to be able to compare it
-    for word in string.split():
-        if query == word:
+def string_rest(rest: Restaurant) -> str:
+    """Returns a string containing all the relevant information
+    of the rest that might satisfy a query"""
+
+    str_rest: str = ''
+    str_rest += rest.get_name() + ' '
+    str_rest += rest.get_adress()[0] + ' '
+    str_rest += rest.get_neighborhood() + ' '
+    str_rest += rest.get_district() + ' '
+    str_rest += rest.get_info()
+    return str_rest
+
+
+def found(word_query: str, str_rest: str) -> bool:
+    """Returns if the word_rest matches with a max_l_dist of 1
+    any word of the str_rest
+    Prec: the word_query and the str_rest must be a lower cases words"""
+
+    for word_rest in str_rest.split():
+        if find_near_matches(word_query, word_rest, max_l_dist=1) != []:
             return True
-    return None
-
-
-def lst_rest(rest: Restaurant) -> List[str]:
-    lst: List[str] = []
-    lst.append(rest.get_name().lower())
-    lst.append(rest.get_adress()[0].lower())
-    lst.append(rest.get_neighborhood().lower())
-    lst.append(rest.get_district().lower())
-    lst.append(rest.get_zip_code().lower())
-    return lst
+    return False
 
 
 def coincidence(query: str, rest: Restaurant) -> bool:
-    lst: List[str] = lst_rest(rest)
-    for string in lst:
-        if split_compare_string(query.lower(), string):
-            return True
-    return False
-    # ERRORS A CORREGIR:
-    # - No funciona amb el zip_code(8013.0)
+    """Returns if the rest satisfies the query"""
+
+    # we create a string with the relevant information of the rest concatenated
+    str_rest: str = string_rest(rest)
+
+    # we check if every word in the query matches with the rest
+    for word_query in query.split():
+        if not found(word_query.lower(), str_rest.lower()):
+            return False
+    return True
 
 
 def find(query: str, restaurants: Restaurants) -> Restaurants:
+    """Given a query and a list of restaurants returns a list of
+    restaurants that satisfy the query"""
+
     restaurants_query: Restaurants = []
-    for restaurant in restaurants:
-        if coincidence(query, restaurant):
-            restaurants_query.append(restaurant)
-    return restaurants_query
 
-
-def exec() -> None:
-    restaurants = read()
     for rest in restaurants:
-        print(rest._zip_code)
-    print()
-    query = "8013.0"
-    filter = find(query, restaurants)
-    for rest in filter:
-        print(rest._name, rest._coord)
+        if coincidence(query, rest):
+            restaurants_query.append(rest)
 
-exec()
+    return restaurants_query
