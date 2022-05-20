@@ -1,5 +1,3 @@
-plot de mapa bcn ben fet
-plot del metro
 video 
 ficar emotes readme
 barcelona.pickle massa gran 
