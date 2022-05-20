@@ -87,7 +87,7 @@ Great! Now let's see a real example.
   <img src="https://github.com/carlosarboness/MetroNyam/blob/main/tutorial4.png" width=30% height=30%>
  </p>
 
-
+If you want to see how to use the bot in more detail in a video, you can click [here](https://www.youtube.com/watch?v=x0kZpj33Yz0).
 ## Authors
 
 Developed by [Carlos Arbonés Sotomayor](https://github.com/carlosarboness) and [Benet Ramió i Comas](https://github.com/benetraco).
