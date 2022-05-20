@@ -150,7 +150,6 @@ def get_att_edge_access(access: Access, dist: float) -> dict:
             'speed': 6/(3.6),  # mean walking speed (6km/h) in m/s
             'weight': dist*(1/6),  # distance divided by speed
             'color': 'black'}  # the color black means that it is walking
-        
 
 
 def get_att_link(dist: float) -> dict:
@@ -331,4 +330,3 @@ def plot(g: MetroGraph, filename: str) -> None:
 
     image = m.render()
     image.save(filename, quality=1000)
-    
