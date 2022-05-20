@@ -93,7 +93,7 @@ def get_attributes_from_acces_to_street(e: Tuple[str, str, dict]) -> dict:
 
 
 def build_city_graph(g1: OsmnxGraph, g2: mt.MetroGraph) -> CityGraph:
-    """Given an OsmnxGraph g1 and a MetroGraph g2, returns a CityGraph 
+    """Given an OsmnxGraph g1 and a MetroGraph g2, returns a CityGraph
     graph which is the merged graph of g1 and g2"""
 
     # copy all the nodes and edges of g2 to g
@@ -147,7 +147,7 @@ def show(g: CityGraph) -> None:
 
 
 def paint_nodes(g: CityGraph, m: StaticMap) -> None:
-    """Paints all the nodes from the graph g in the StaticMap m, 
+    """Paints all the nodes from the graph g in the StaticMap m,
     the street nodes in green and the metro nodes in red"""
 
     for index, node in g.nodes.data():
@@ -160,7 +160,7 @@ def paint_nodes(g: CityGraph, m: StaticMap) -> None:
 
 
 def paint_edges(g: CityGraph, m: StaticMap) -> None:
-    """Paints all the edges from the graph g in the StaticMap m, 
+    """Paints all the edges from the graph g in the StaticMap m,
     the street edges in yellow and the metro edges in blue"""
 
     for n1 in g.edges.data():
