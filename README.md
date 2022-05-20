@@ -1,7 +1,7 @@
-# MetroNyam
+# MetroNyam 🍲 🚇 
 Choose your restaurant and go by metro!
 
-## Getting Started
+## Getting Started ✍🏻
 
 This project is divided in four parts: 
 
@@ -16,7 +16,7 @@ This project is divided in four parts:
 * `bot.py` : Contains all the code related to the Telegram bot and uses the city and restaurant modules. Its task is to react to user commands in order to guide them.
 
 
-### Prerequisites
+### Prerequisites 📃
 
 You will need to have `python3` and `pip3` updated. Check it with:
 ```
@@ -28,7 +28,7 @@ To use the bot you will need a `Telegram` account as well as the `Telegram` app.
 
 In addition to this, in order to make a good usage of the project, you will need to create your own bot and save your acess token in a file called `token.txt`. To do that follow the _**Requirements**_ steps in [Lliçons de bots de Telegram](https://xn--llions-yua.jutge.org/python/telegram.html)
 
-### Installing
+### Installing 🛠
 
 The packages needed for this bot are:
 * `networkx` to manipulate graphs.
@@ -49,7 +49,7 @@ pip3 install -r requirements.txt
 If you have problems with it you can install the packages one by one with `pip3 install` followed by the package name.
 
 
-## Usage
+## Usage 🤖 
 
 **Note**: this bot is configured to work with _**Barcelona**_ street network by default, therefore, interaction with the user is made in _Catalan language_.
 To use the bot you must first open your telegram account and select the chat of the bot you created. Then execute bot.py in the terminal using python3:
@@ -88,7 +88,7 @@ Great! Now let's see a real example.
  </p>
 
 If you want to see how to use the bot in more detail in a video, you can click [here](https://www.youtube.com/watch?v=x0kZpj33Yz0).
-## Authors
+## Authors 👨🏼‍🎓 
 
 Developed by [Carlos Arbonés Sotomayor](https://github.com/carlosarboness) and [Benet Ramió i Comas](https://github.com/benetraco).
 
