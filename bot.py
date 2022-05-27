@@ -39,8 +39,6 @@ def start(update, context):
     """ Inicializes the bot and sends an introductory message to help the users
     start using it """
 
-    init_city()
-
     user = update.effective_chat.first_name   # we get the user's first name
 
     salute = '''
@@ -419,6 +417,7 @@ def send_no_especificated_error(update, context) -> None:
 
 # ------------------------------------------------------------------------------
 
+init_city()
 
 TOKEN = open('token.txt').read().strip()
 updater = Updater(token=TOKEN, use_context=True)
