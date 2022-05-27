@@ -20,15 +20,6 @@ METRO_SPEED = 26/(3.6)  # mean metro speed (26km/h) in m/s
 global WALK_SPEED
 WALK_SPEED = 6/(3.6)  # mean walking speed (6km/h) in m/s
 
-global LINK_RETARD
-LINK_RETARD = 180  # mean retard seconds we have to wait if he change lines
-
-global ACCESS_RETARD
-ACCESS_RETARD = 120  # mean retard seconds we have to wait for a metro to arrive
-
-global METRO_RETARD
-METRO_RETARD = 15  # mean seconds the metro is stoped in each station
-
 
 location = Tuple[float, float]  # (latitude, longitude)
 
@@ -171,7 +162,7 @@ def get_att_edge_access(access: Access, dist: float) -> dict:
     return {'type': 'Access',
             'dist': dist,
             'speed': WALK_SPEED,
-            'weight': dist/WALK_SPEED + ACCESS_RETARD,  # distance divided by speed
+            'weight': dist/WALK_SPEED,  # distance divided by speed
             'color': 'grey'}  # the color grey means that it is walking underground
 
 
@@ -183,7 +174,7 @@ def get_att_link(dist: float) -> dict:
     return {'type': 'Link',
             'dist': dist,
             'speed': WALK_SPEED,
-            'weight': dist/WALK_SPEED + LINK_RETARD,  # distance divided by speed
+            'weight': dist/WALK_SPEED,  # distance divided by speed
             'color': 'grey'}  # the color grey means that it is walking underground
 
 
