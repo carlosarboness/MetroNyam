@@ -419,6 +419,7 @@ def send_no_especificated_error(update, context) -> None:
 
 init_city()
 
+
 TOKEN = open('token.txt').read().strip()
 updater = Updater(token=TOKEN, use_context=True)
 dispatcher = updater.dispatcher

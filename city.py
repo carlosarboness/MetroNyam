@@ -60,8 +60,8 @@ def access_to_closest_streets(g1: OsmnxGraph, g2: mt.MetroGraph) -> list:
             acces_Y_coordinates.append(n[1]['pos'][1])
             accesses.append(n[0])
 
-    street, dist = ox.distance.nearest_nodes(g1, acces_X_coordinates, acces_Y_coordinates, return_dist=True)
-    return zip(accesses, street, dist)
+    streets, dist = ox.distance.nearest_nodes(g1, acces_X_coordinates, acces_Y_coordinates, return_dist=True)
+    return zip(accesses, streets, dist)
 
 
 def get_attributes_from_osmnx_nodes(n: Tuple[str, dict]) -> dict:
@@ -74,22 +74,24 @@ def get_attributes_from_osmnx_nodes(n: Tuple[str, dict]) -> dict:
 def get_attributes_from_osmnx_edges(e: Tuple[str, str, dict]) -> dict:
     """Returns the attributes from the edge e, which is an OsmnxGraph edge"""
 
+    dist: float = e[2]['length']  # distance in meters
     return {'type': 'Street',
-            'dist': e[2]['length']/1000,  # distance in km
+            'dist': dist,
             'speed': 6/(3.6),  # mean walking speed (6km/h) in m/s
-            'weight': e[2]['length']/1000*(1/6),  # distance divided by speed
-            'color': 'black'}
+            'weight': dist/mt.WALK_SPEED,  # distance divided by speed
+            'color': 'black'}  # the color black means that it is walking
 
 
-def get_attributes_from_acces_to_street(e: Tuple[str, str, dict]) -> dict:
+def get_attributes_from_acces_to_street(e: Tuple[str, str, float]) -> dict:
     """Returns the attributes from the edge e, which joins an access
-    e[0] to it closest street e[1]"""
+    e[0] to it closest street e[1] with distance e[2]
+    Prec: distance e[2] must be in meters"""
 
     return {'type': 'Street',
-            'dist': e[2]/1000,  # distance in meters
-            'speed': 6/(3.6),  # mean walking speed (6km/h) in m/s
-            'weight': e[2]/1000*(1/6),  # distance divided by speed
-            'color': 'black'}
+            'dist': e[2],  # distance in meters
+            'speed': mt.WALK_SPEED,
+            'weight': e[2]/mt.WALK_SPEED,  # distance divided by speed
+            'color': 'black'}  # the color black means that it is walking
 
 
 def build_city_graph(g1: OsmnxGraph, g2: mt.MetroGraph) -> CityGraph:
@@ -231,7 +233,7 @@ def time(g: CityGraph, p: Path) -> float:
 
     # sum the time that is going to take every edge
     for i in range(0, len(p)-1):
-        edge_dist = float(g.edges[p[i], p[i+1]]['dist'])*1000
+        edge_dist = float(g.edges[p[i], p[i+1]]['dist'])
         speed = float(g.edges[p[i], p[i+1]]['speed'])
         time += (edge_dist/speed)
 

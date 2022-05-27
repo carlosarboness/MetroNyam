@@ -1,4 +1,7 @@
 from dataclasses import dataclass
+from mmap import ACCESS_READ
+from pickle import MEMOIZE
+from re import M
 from typing_extensions import TypeAlias
 import pandas as pd
 import networkx as nx
@@ -8,6 +11,23 @@ import matplotlib.pyplot as plt
 from haversine import *
 from PIL import Image
 import PIL
+
+
+# global variables
+global METRO_SPEED
+METRO_SPEED = 26/(3.6)  # mean metro speed (26km/h) in m/s
+
+global WALK_SPEED
+WALK_SPEED = 6/(3.6)  # mean walking speed (6km/h) in m/s
+
+global LINK_RETARD
+LINK_RETARD = 180  # mean retard seconds we have to wait if he change lines
+
+global ACCESS_RETARD
+ACCESS_RETARD = 120  # mean retard seconds we have to wait for a metro to arrive
+
+global METRO_RETARD
+METRO_RETARD = 15  # mean seconds the metro is stoped in each station
 
 
 location = Tuple[float, float]  # (latitude, longitude)
@@ -126,10 +146,12 @@ def get_att_tram(stat1: Station, stat2: Station) -> dict:
     """Returns a map of the attributes of the edge between
     the stations stat1 and stat2"""
 
+    dist: float = haversine(stat2.get_location(), stat1.get_location())
+    dist *= 1000  # distance in meters
     return {'type': 'tram',
-            'dist': haversine(stat2.get_location(), stat1.get_location()),  # distance in meters
-            'speed': 26/(3.6),  # mean metro speed (26km/h) in m/s
-            'weight': float(haversine(stat2.get_location(), stat1.get_location()))*(1/26),  # distance divided by speed
+            'dist': dist,
+            'speed': METRO_SPEED,
+            'weight': dist/METRO_SPEED,  # distance divided by speed
             'line': stat1.get_line(),
             'color': stat1.get_color()}
 
@@ -143,24 +165,26 @@ def get_att_node_access(access: Access) -> dict:
 
 def get_att_edge_access(access: Access, dist: float) -> dict:
     """Returns a map of the attributes of the edge between an access
-    and its station given the access and the distance to its station"""
+    and its station given the access and the distance to its station
+    Prec: dist must be in meters"""
 
     return {'type': 'Access',
-            'dist': dist,  # distance in meters
-            'speed': 6/(3.6),  # mean walking speed (6km/h) in m/s
-            'weight': dist*(1/6),  # distance divided by speed
-            'color': 'black'}  # the color black means that it is walking
+            'dist': dist,
+            'speed': WALK_SPEED,
+            'weight': dist/WALK_SPEED + ACCESS_RETARD,  # distance divided by speed
+            'color': 'grey'}  # the color grey means that it is walking underground
 
 
 def get_att_link(dist: float) -> dict:
     """Returns a map of the attributes of a link edge between two
-    station given the distance between them"""
+    station given the distance between them
+    Prec: dist must be in meters"""
 
     return {'type': 'Link',
-            'dist': dist,  # distance in meters
-            'speed': 6/(3.6),  # mean walking speed (6km/h) in m/s
-            'weight': dist*(1/6),  # distance divided by speed
-            'color': 'black'}  # the color black means that it is walking
+            'dist': dist,
+            'speed': WALK_SPEED,
+            'weight': dist/WALK_SPEED + LINK_RETARD,  # distance divided by speed
+            'color': 'grey'}  # the color grey means that it is walking underground
 
 
 def get_node_station_name(stat: Station) -> str:
@@ -184,6 +208,10 @@ def add_station_node(metro: MetroGraph, stat: Station, stat_map: dict) -> None:
     # add the node and its attributes to the metro
     att: dict = get_att_station(stat)
     node_name: str = get_node_station_name(stat)
+    # if the node is already in the graph we change
+    # its name to not overwrite the other node
+    if node_name in metro.nodes():
+        node_name += '*'
     metro.add_node(node_name, **att)
 
     # add to the stat_map the node with the key being its name
@@ -221,7 +249,9 @@ def add_access_edge(metro: MetroGraph, access: Access) -> None:
 
     # we get the attributes of the edge using the access
     # and its distance to the node
-    att: dict = get_att_edge_access(access, haversine(metro.nodes[stat_name]['pos'], metro.nodes[access_name]['pos']))
+    dist: float = haversine(metro.nodes[stat_name]['pos'], metro.nodes[access_name]['pos'])
+    dist *= 1000  # distance in meters
+    att: dict = get_att_edge_access(access, dist)
 
     metro.add_edge(stat_name, access_name, **att)
 
@@ -235,7 +265,7 @@ def add_link_edge(metro: MetroGraph, lst_station: list) -> None:
         for stat2 in lst_station:
             if stat1 != stat2:
                 dist: float = haversine(metro.nodes[stat1]['pos'], metro.nodes[stat2]['pos'])
-                att: dict = get_att_link(dist)
+                att: dict = get_att_link(dist*1000)
                 metro.add_edge(stat1, stat2, **att)
 
 
