@@ -52,6 +52,7 @@ If you have problems with it you can install the packages one by one with `pip3 
 ## Usage 🤖 
 
 **Note**: this bot is configured to work with _**Barcelona**_ street network by default, therefore, interaction with the user is made in _Catalan language_.
+
 To use the bot you must first open your telegram account and select the chat of the bot you created. Then execute bot.py in the terminal using python3:
 ```
 python3 bot.py
