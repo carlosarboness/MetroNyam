@@ -23,7 +23,7 @@ def init_city() -> None:
 
     global metro_graph
     metro_graph = mt.get_metro_graph()
-    mt.plot(metro_graph, 'filename.png')
+    mt.plot(metro_graph, 'metro_map.png')
 
     global bcn_graph
     bcn_graph = cy.get_osmnx_graph()
@@ -231,7 +231,7 @@ def metro_map(update, context):
 
     try:
 
-        context.bot.send_photo(chat_id=update.effective_chat.id, photo=open('filename.png', "rb"))
+        context.bot.send_photo(chat_id=update.effective_chat.id, photo=open('metro_map.png', "rb"))
 
     except Exception:
 
