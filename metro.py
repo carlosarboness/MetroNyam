@@ -1,16 +1,11 @@
-from dataclasses import dataclass
-from mmap import ACCESS_READ
-from pickle import MEMOIZE
-from re import M
-from typing_extensions import TypeAlias
 import pandas as pd
 import networkx as nx
-from staticmap import *
-from typing import Optional, List, Tuple
 import matplotlib.pyplot as plt
+from typing_extensions import TypeAlias
+from typing import Optional, List, Tuple
+from dataclasses import dataclass
+from staticmap import *
 from haversine import *
-from PIL import Image
-import PIL
 
 
 # global variables
@@ -351,3 +346,11 @@ def plot(g: MetroGraph, filename: str) -> None:
 
     image = m.render()
     image.save(filename, quality=1000)
+
+
+def exec():
+    g = get_metro_graph()
+    show(g)
+    plot(g, "hola.png")
+
+exec()

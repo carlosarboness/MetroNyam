@@ -1,13 +1,13 @@
-import osmnx as ox
 import os
-from typing_extensions import TypeAlias
-import networkx as nx
-from staticmap import *
-from typing import List, Type, Union, Tuple, Optional
-import matplotlib.pyplot as plt
-from haversine import *
-import metro as mt
 import pickle
+import metro as mt
+import osmnx as ox
+import networkx as nx
+import matplotlib.pyplot as plt
+from typing_extensions import TypeAlias
+from typing import List, Union, Tuple
+from staticmap import *
+from haversine import *
 
 
 CityGraph: TypeAlias = nx.Graph

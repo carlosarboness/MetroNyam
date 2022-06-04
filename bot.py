@@ -1,13 +1,14 @@
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+import os
 import telegram
 import random
-import os
+import datetime
 import restaurants as rs
 import metro as mt
 import city as cy
-import datetime
-from datetime import datetime, timedelta
 from typing import Tuple
+from datetime import datetime, timedelta
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+
 
 
 # ----------------------------- Initialization -------------------------------

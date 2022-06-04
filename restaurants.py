@@ -1,7 +1,7 @@
-from dataclasses import dataclass
-from typing import List, Tuple
-from typing_extensions import TypeAlias
 import pandas as pd
+from typing_extensions import TypeAlias
+from typing import List, Tuple
+from dataclasses import dataclass
 from fuzzysearch import find_near_matches
 
 
