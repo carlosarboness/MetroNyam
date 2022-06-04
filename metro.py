@@ -346,11 +346,3 @@ def plot(g: MetroGraph, filename: str) -> None:
 
     image = m.render()
     image.save(filename, quality=1000)
-
-
-def exec():
-    g = get_metro_graph()
-    show(g)
-    plot(g, "hola.png")
-
-exec()
